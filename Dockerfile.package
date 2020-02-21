@@ -1,0 +1,15 @@
+FROM base
+
+ARG PLAYWRIGHT_VERSION=latest
+ARG NPM_LOGLEVEL=warn
+
+# Create app directory
+WORKDIR /home/pwuser
+
+COPY package*.json ./
+
+RUN echo playwright@${PLAYWRIGHT_VERSION}
+
+RUN npm install playwright@${PLAYWRIGHT_VERSION} --loglevel ${NPM_LOGLEVEL}
+RUN npm install --loglevel ${NPM_LOGLEVEL}
+
