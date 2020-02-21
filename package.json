@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "description": "Minimalistic playwright server in docker.",
   "main": "build/src/main.js",
+  "repository": "https://github.com/Cyrus-d/playwright-docker-server",
   "devDependencies": {
     "@types/http-proxy": "^1.17.3",
     "@types/jest": "^24.0.18",
