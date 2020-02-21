@@ -2,9 +2,13 @@
 
 Minimalistic docker image to run playwright server inside docker.
 
+> Currently only works with chromium and playwright >= 0.11.0
+
 ## Build
 
 ```
+npm run build
+
 docker build --rm -f Dockerfile -t <image-name> .
 ```
 

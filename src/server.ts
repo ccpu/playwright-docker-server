@@ -7,7 +7,7 @@ export const httpServer = http.createServer();
 export const startHttpServer = () => {
   httpServer
     .on('upgrade', async (req, socket, head) => {
-      const target = await runBrowserServer(socket);
+      const target = await runBrowserServer(req, socket);
       setProxy(req, socket, head, target);
     })
     .on('listening', () => {

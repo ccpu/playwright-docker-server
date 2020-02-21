@@ -1,5 +1,7 @@
 import * as net from 'net';
 import * as playwright from 'playwright-core';
+import { IncomingMessage } from 'http';
+import { getBrowserType } from './utils';
 
 interface BrowserInstance {
   [endPoint: string]: playwright.BrowserServer;
@@ -7,8 +9,15 @@ interface BrowserInstance {
 
 const browserInstances: BrowserInstance = {};
 
-export const runBrowserServer = async (socket: net.Socket) => {
-  const browser = await playwright.chromium.launchServer({
+export const runBrowserServer = async (
+  req: IncomingMessage,
+  socket: net.Socket,
+) => {
+  const browserType = getBrowserType(req);
+
+  console.log(browserType + ' browser started.');
+
+  const browser = await playwright[browserType].launchServer({
     args: ['--no-sandbox'],
   });
 
@@ -16,6 +25,7 @@ export const runBrowserServer = async (socket: net.Socket) => {
   browserInstances[endPoint] = browser;
 
   socket.on('close', async () => {
+    console.log(browserType + ' browser terminated.');
     await browser.close();
     delete browserInstances[endPoint];
   });
