@@ -1,6 +1,7 @@
 import { setProxy, killProxy } from './proxy';
 import * as http from 'http';
 import { runBrowserServer, killAllBrowserInstance } from './browser';
+import { TIME_OUT } from './constants';
 
 export const httpServer = http.createServer();
 
@@ -34,3 +35,9 @@ export const shutdown = () => {
 process.on('SIGINT', function() {
   shutdown();
 });
+
+if (process.env[TIME_OUT]) {
+  setTimeout(() => {
+    shutdown();
+  }, Number.parseInt(process.env[TIME_OUT]));
+}

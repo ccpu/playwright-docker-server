@@ -99,12 +99,22 @@ services:
 
 ### Docker options
 
-- USE_ONCE
+- USE_ONCE (boolean)
 
 Useful when only one job/socket required and docker need to be shutdown after job done.
 
 ```
 docker run -it --rm -p 3000:3000 -e USE_ONCE=true  <image_name>
+```
+
+- TIME_OUT (int)
+
+Value in millisecond, if not set docker will run forever.
+
+Set this value if docker need to be shutdown after specified time.
+
+```
+docker run -it --rm -p 3000:3000 -e TIME_OUT=10000  <image_name>
 ```
 
 ## Build All
