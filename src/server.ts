@@ -5,22 +5,26 @@ import { TIME_OUT } from './constants';
 
 export const httpServer = http.createServer();
 
-export const startHttpServer = () => {
-  httpServer
-    .on('upgrade', async (req, socket, head) => {
-      const target = await runBrowserServer(req, socket);
-      setProxy(req, socket, head, target);
-    })
-    .on('listening', () => {
-      console.log('Server listening...');
-    })
-    .on('close', () => {
-      console.log('http server closed');
-    })
-    .on('error', err => {
-      console.error(err);
-    })
-    .listen(3000);
+export const startHttpServer = async () => {
+  return new Promise((resolve, reject) => {
+    httpServer
+      .on('upgrade', async (req, socket, head) => {
+        const target = await runBrowserServer(req.url, socket);
+        setProxy(req, socket, head, target);
+      })
+      .on('listening', () => {
+        console.log('Server listening...');
+        resolve();
+      })
+      .on('close', () => {
+        console.log('http server closed');
+      })
+      .on('error', err => {
+        console.error(err);
+        reject(err);
+      })
+      .listen(3000);
+  });
 };
 
 export const shutdown = () => {
@@ -29,7 +33,7 @@ export const shutdown = () => {
   killAllBrowserInstance();
   httpServer.close();
   console.log('Successful shutdown');
-  process.exit(0);
+  if (!process.env.__TEST__) process.exit(0);
 };
 
 process.on('SIGINT', function() {
