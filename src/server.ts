@@ -37,9 +37,10 @@ process.on('SIGINT', function() {
 });
 
 if (process.env[TIME_OUT]) {
+  const seconds = Number.parseInt(process.env[TIME_OUT]) * 1000;
   setTimeout(() => {
     console.log('Timeout reached, shuting down the docker...');
     shutdown();
-  }, Number.parseInt(process.env[TIME_OUT]));
-  console.log('Will shutdown after ' + TIME_OUT + ' seconds.');
+  }, seconds);
+  console.log('Will shutdown after ' + process.env[TIME_OUT] + ' seconds.');
 }
