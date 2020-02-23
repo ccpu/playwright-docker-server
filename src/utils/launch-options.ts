@@ -61,7 +61,7 @@ export function extractProcessEnvOptions(showOptions: boolean = true) {
     ...restOfEnvLaunchOptions,
   };
 
-  if (showOptions) {
+  if (showOptions && !process.env.__TEST__) {
     console.log('Launch options:');
     console.log(JSON.stringify(launchOptions, null, ' '));
   }

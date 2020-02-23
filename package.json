@@ -32,6 +32,7 @@
   "license": "Apache-2.0",
   "dependencies": {
     "http-proxy": "^1.18.0",
+    "jest-mock-console": "^1.0.0",
     "playwright": "^0.11.1",
     "tslib": "^1.10.0"
   }

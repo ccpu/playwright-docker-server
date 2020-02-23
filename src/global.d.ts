@@ -3,5 +3,8 @@ declare global {
     trimSpecialCharStart(): string;
     trimSpecialCharEnd(): string;
   }
+  interface Window {
+    __TEST__: boolean;
+  }
 }
 export {};
