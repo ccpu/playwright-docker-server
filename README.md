@@ -97,6 +97,22 @@ services:
 
 > Note that `no_sandbox` is reserved.
 
+### URI Options
+
+Options can also passed with each socket request as follow:
+
+```
+  const browser = await playwright.chromium.connect({
+    wsEndpoint: `ws://127.0.0.1:3000/chromium/
+      flag-debug-print/
+      server-ignoreDefaultArgs=["--hide-scrollbars","--mute-audio"]
+      `,
+  });
+
+```
+
+> Same as environment variable `flag-` and `server-` identifier need to be included at the beginning of option.
+
 ### Docker options
 
 - USE_ONCE (boolean)

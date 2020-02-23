@@ -1,7 +1,7 @@
 import * as net from 'net';
 import * as playwright from 'playwright-core';
 import { IncomingMessage } from 'http';
-import { getBrowserType, launchOptions } from './utils';
+import { getBrowserType, getLaunchOptions } from './utils';
 
 interface BrowserInstance {
   [endPoint: string]: playwright.BrowserServer;
@@ -13,11 +13,13 @@ export const runBrowserServer = async (
   req: IncomingMessage,
   socket: net.Socket,
 ) => {
-  const browserType = getBrowserType(req);
+  const browserType = getBrowserType(req.url);
 
   console.log(browserType + ' browser started.');
 
-  const browser = await playwright[browserType].launchServer(launchOptions);
+  const browser = await playwright[browserType].launchServer(
+    getLaunchOptions(req.url),
+  );
 
   const endPoint = browser.wsEndpoint();
   browserInstances[endPoint] = browser;
