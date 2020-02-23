@@ -5,19 +5,18 @@ const extractOptions = <T>(startsWith: string) => {
     (newObj, key) => {
       if (key.startsWith(startsWith + '_')) {
         const envKey = key.split('_').join('-');
-
         const envVal = process.env[key];
-
         const optionKey = envKey.replace(startsWith + '-', '');
 
-        const val =
-          envVal.indexOf('|') !== -1
-            ? envVal
-                .split('|')
-                .map(x =>
-                  x.replace(/^[^a-zA-Z-]/g, '').replace(/[^a-zA-Z]+$/g, ''),
-                )
-            : envVal;
+        const val = envVal.replace(/^[^a-zA-Z-/\[/]/g, '').startsWith('[')
+          ? JSON.parse(
+              envVal
+                .replace(/^[^a-zA-Z-]/g, '')
+                .replace(/[^a-zA-Z-/\]/]+$/g, '')
+                .split("'")
+                .join('"'),
+            )
+          : envVal;
 
         if (optionKey) newObj[optionKey] = val;
       }

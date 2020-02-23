@@ -16,6 +16,9 @@ export const startHttpServer = () => {
     .on('close', () => {
       console.log('http server closed');
     })
+    .on('error', err => {
+      console.error(err);
+    })
     .listen(3000);
 };
 

@@ -54,7 +54,7 @@ services:
       - SERVER_ignoreDefaultArgs=true
 ```
 
-For options with the type of `array` use `|` as follow:
+For options with the type of `array` simply do as follow:
 
 version: '3'
 
@@ -67,7 +67,8 @@ services:
     ports:
       - 3000:3000
     environment:
-      - SERVER_ignoreDefaultArgs="--hide-scrollbars|--mute-audio"
+      - SERVER_ignoreDefaultArgs="['--hide-scrollbars','--mute-audio']"
+
 ```
 
 ### Chromium [Flags](https://peter.sh/experiments/chromium-command-line-switches/)
