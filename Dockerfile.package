@@ -1,7 +1,7 @@
 FROM base
 
 ARG PLAYWRIGHT_VERSION=latest
-ARG NPM_LOGLEVEL=warn
+ARG NPM_LOGLEVEL=notice
 
 # Create app directory
 WORKDIR /home/pwuser

@@ -1,7 +1,5 @@
 FROM package
 
-# USER root
-
 WORKDIR /home/pwuser
 
 COPY package*.json ./
