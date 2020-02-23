@@ -5,10 +5,21 @@ const extractOptions = <T>(startsWith: string) => {
     (newObj, key) => {
       if (key.startsWith(startsWith + '_')) {
         const envKey = key.split('_').join('-');
-        const keyVal = envKey.split('=');
-        const optionKey = envKey.replace(startsWith + '-', '').toLowerCase();
-        const optVal = keyVal.length === 2 ? keyVal[1] : true;
-        if (optionKey) newObj[optionKey] = optVal;
+
+        const envVal = process.env[key];
+
+        const optionKey = envKey.replace(startsWith + '-', '');
+
+        const val =
+          envVal.indexOf('|') !== -1
+            ? envVal
+                .split('|')
+                .map(x =>
+                  x.replace(/^[^a-zA-Z-]/g, '').replace(/[^a-zA-Z]+$/g, ''),
+                )
+            : envVal;
+
+        if (optionKey) newObj[optionKey] = val;
       }
       return newObj;
     },
@@ -26,9 +37,15 @@ const flags = Object.keys(envFlags).reduce((newArr, flag) => {
   return newArr;
 }, []);
 
+const { args: launchOptionsArgs, ...restOfEnvLaunchOptions } = envLaunchOptions;
+
 let launchOptions: LaunchOptions = {
-  args: [...flags, '--no-sandbox'],
-  ...envLaunchOptions,
+  args: [
+    ...flags,
+    ...(launchOptionsArgs ? launchOptionsArgs : []),
+    '--no-sandbox',
+  ],
+  ...restOfEnvLaunchOptions,
 };
 
 console.log('Launch options:');

@@ -37,7 +37,7 @@ import * as playwright from 'playwright-core';
 To apply playwright server [launchOptions](https://github.com/microsoft/playwright/blob/master/docs/api.md#browsertypelaunchserveroptions) use `SERVER_` at beginning of the environment variable:
 
 ```
-docker run -it --rm -p 3000:3000 -e SERVER_HEADLESS=true <image_name>
+docker run -it --rm -p 3000:3000 -e SERVER_ignoreDefaultArgs=true <image_name>
 ```
 
 In docker-compose:
@@ -51,7 +51,23 @@ services:
     ports:
       - 3000:3000
     environment:
-      - SERVER_HEADLESS=true
+      - SERVER_ignoreDefaultArgs=true
+```
+
+For options with the type of `array` use `|` as follow:
+
+version: '3'
+
+```
+version: '3'
+
+services:
+  browser-test:
+    image: <image_name>
+    ports:
+      - 3000:3000
+    environment:
+      - SERVER_ignoreDefaultArgs="--hide-scrollbars|--mute-audio"
 ```
 
 ### Chromium [Flags](https://peter.sh/experiments/chromium-command-line-switches/)
@@ -59,7 +75,7 @@ services:
 To apply chromium [flags](https://peter.sh/experiments/chromium-command-line-switches/) use `FLAG_` at the beginning of environment variable:
 
 ```
-docker run -it --rm -p 3000:3000 -e FLAG_HEADLESS=true <image_name>
+docker run -it --rm -p 3000:3000 -e FLAG_debug_print=true <image_name>
 ```
 
 In docker-compose:
@@ -73,10 +89,12 @@ services:
     ports:
       - 3000:3000
     environment:
-      - FLAG_HEADLESS=true
+      - FLAG_debug_print=true
 ```
 
-> note that `no_sandbox` is reserved.
+> Not all chromium flags has been test, some of the flag may crash the docker.
+
+> Note that `no_sandbox` is reserved.
 
 ### Docker options
 
