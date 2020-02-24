@@ -13,9 +13,11 @@ export const setProxy = (
   target: string,
 ) => {
   proxy.ws(req, socket, head, { target });
+  return proxy;
 };
 
 export const killProxy = () => {
+  if (!proxy) return;
   proxy.removeAllListeners();
   proxy.close();
 };

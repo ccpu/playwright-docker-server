@@ -1,4 +1,4 @@
-type SocketMockEvents = { [key: string]: () => void | Promise<void> };
+type SocketMockEvents = { [key: string]: (args: any) => void | Promise<void> };
 
 class GenericEventListener {
   allEvents: SocketMockEvents = {};
@@ -7,8 +7,9 @@ class GenericEventListener {
     this.allEvents[_event] = _listener;
     return this;
   }
-  async emit(event: string) {
-    await this.allEvents[event]();
+  async emit(event: string, ...args) {
+    // @ts-ignore
+    await this.allEvents[event](...args);
   }
 }
 

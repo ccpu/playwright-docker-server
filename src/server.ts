@@ -30,11 +30,15 @@ export const startHttpServer = async () => {
 };
 
 export const shutdown = async () => {
+  try {
+    killProxy();
+    if (browser) await browser.killAll();
+    if (httpServer) httpServer.close();
+    console.log('Successful shutdown');
+  } catch (error) {
+    console.log(error);
+  }
   process.removeAllListeners();
-  killProxy();
-  await browser.killAll();
-  httpServer.close();
-  console.log('Successful shutdown');
   if (!process.env.__TEST__) process.exit(0);
 };
 
