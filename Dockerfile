@@ -1,4 +1,4 @@
-FROM package
+FROM playwright/package
 
 WORKDIR /home/pwuser
 

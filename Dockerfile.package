@@ -1,4 +1,4 @@
-FROM base
+FROM playwright/base
 
 ARG PLAYWRIGHT_VERSION=latest
 ARG NPM_LOGLEVEL=notice
