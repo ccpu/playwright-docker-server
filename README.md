@@ -133,6 +133,10 @@ Set this value if docker need to be shutdown after specified time.
 docker run -it --rm -p 3000:3000 -e TIME_OUT=1200  <image_name>
 ```
 
+- DISABLE_MESSAGES (boolean)
+
+By default some messages are displayed in terminal, to disable it use `DISABLE_MESSAGES`.
+
 ## Build All
 
 ```
