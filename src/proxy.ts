@@ -21,8 +21,8 @@ export const killProxy = () => {
 };
 
 proxy.on('error', (err: Error, _req, res) => {
-  res.writeHead && res.writeHead(500, { 'Content-Type': 'text/plain' });
   console.log(`Issue communicating with browser: "${err.message}"`);
+  res.writeHead && res.writeHead(500, { 'Content-Type': 'text/plain' });
   res.end(`Issue communicating with browser`);
 });
 

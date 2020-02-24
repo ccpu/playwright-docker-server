@@ -42,7 +42,8 @@ process.on('SIGINT', function() {
   shutdown();
 });
 
-export const startTimeOut = (timeout: number) => {
+export const startTimeOut = (timeout?: number) => {
+  if (!timeout) return;
   const seconds = timeout * 1000;
   setTimeout(async () => {
     console.log('Timeout reached, shuting down the docker...');

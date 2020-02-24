@@ -7,7 +7,7 @@ class GenericEventListener {
     this.allEvents[_event] = _listener;
     return this;
   }
-  async mockEmit(event: string) {
+  async emit(event: string) {
     await this.allEvents[event]();
   }
 }

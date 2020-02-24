@@ -20,7 +20,7 @@ describe('runBrowserServer', () => {
     const socket = new EventListenerMock<net.Socket>();
     const endPoint = await browser.launchServer('/chromium', socket);
 
-    await socket.mockEmit('close');
+    await socket.emit('close');
 
     expect(console.log).toHaveBeenCalledWith('chromium browser started.');
     expect(browser.instances[endPoint]).toBe(undefined);
