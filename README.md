@@ -142,8 +142,8 @@ By default some messages are displayed in terminal, to disable it use `DISABLE_M
 ```
 npm run build
 
-docker build --rm -f Dockerfile.base -t base .
-docker build --rm -f Dockerfile.package -t package .
+docker build --rm -f Dockerfile.base -t playwright-docker-base .
+docker build --rm -f Dockerfile.package -t playwright-docker-package .
 docker build --rm -f Dockerfile -t playwright-docker-server .
 ```
 
@@ -152,14 +152,14 @@ docker build --rm -f Dockerfile -t playwright-docker-server .
 Update to latest playwright version:
 
 ```
-docker build --rm -f Dockerfile.package -t package .
+docker build --rm -f Dockerfile.package -t playwright-docker-package .
 docker build --rm -f Dockerfile -t playwright-docker-server .
 ```
 
 Update to specific playwright version:
 
 ```
-docker build --rm -f Dockerfile.package -t package --build-arg  PLAYWRIGHT_VERSION=0.11.1 .
+docker build --rm -f Dockerfile.package -t playwright-docker-package --build-arg  PLAYWRIGHT_VERSION=0.11.1 .
 docker build --rm -f Dockerfile -t playwright-docker-server .
 ```
 
