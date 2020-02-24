@@ -1,15 +1,17 @@
 import { setProxy, killProxy } from './proxy';
 import * as http from 'http';
-import { runBrowserServer, killAllBrowserInstance } from './browser';
+import { Browser } from './browser';
 import { TIME_OUT } from './constants';
 
 export const httpServer = http.createServer();
+
+const browser = new Browser();
 
 export const startHttpServer = async () => {
   return new Promise((resolve, reject) => {
     httpServer
       .on('upgrade', async (req, socket, head) => {
-        const target = await runBrowserServer(req.url, socket);
+        const target = await browser.launchServer(req.url, socket);
         setProxy(req, socket, head, target);
       })
       .on('listening', () => {
@@ -27,10 +29,10 @@ export const startHttpServer = async () => {
   });
 };
 
-export const shutdown = () => {
+export const shutdown = async () => {
   process.removeAllListeners();
   killProxy();
-  killAllBrowserInstance();
+  await browser.killAll();
   httpServer.close();
   console.log('Successful shutdown');
   if (!process.env.__TEST__) process.exit(0);
@@ -40,11 +42,13 @@ process.on('SIGINT', function() {
   shutdown();
 });
 
-if (process.env[TIME_OUT]) {
-  const seconds = Number.parseInt(process.env[TIME_OUT]) * 1000;
-  setTimeout(() => {
+export const startTimeOut = (timeout: number) => {
+  const seconds = timeout * 1000;
+  setTimeout(async () => {
     console.log('Timeout reached, shuting down the docker...');
-    shutdown();
+    await shutdown();
   }, seconds);
-  console.log('Will shutdown after ' + process.env[TIME_OUT] + ' seconds.');
-}
+  console.log('Will shutdown after ' + timeout + ' seconds.');
+};
+
+startTimeOut(process.env[TIME_OUT] && Number.parseInt(process.env[TIME_OUT]));

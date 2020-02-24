@@ -1,8 +1,10 @@
 import { getLaunchOptions, extractProcessEnvOptions } from '../launch-options';
+import mockConsole from 'jest-mock-console';
 
 describe('getLaunchOptions', () => {
   beforeEach(() => {
-    extractProcessEnvOptions(false);
+    mockConsole();
+    extractProcessEnvOptions();
     delete process.env['SERVER_ArrayTest'];
     delete process.env['FLAG_flag_test'];
   });
@@ -14,7 +16,7 @@ describe('getLaunchOptions', () => {
   });
 
   it('should write options in console', () => {
-    extractProcessEnvOptions(true);
+    extractProcessEnvOptions();
     expect(getLaunchOptions('/chromium')).toStrictEqual({
       args: ['--no-sandbox'],
     });
@@ -37,7 +39,7 @@ describe('getLaunchOptions', () => {
   it('should extract process.env options', () => {
     process.env['SERVER_ArrayTest'] = "['--hide-scrollbars','--mute-audio']";
     process.env['FLAG_flag_test'] = 'true';
-    extractProcessEnvOptions(false);
+    extractProcessEnvOptions();
     expect(getLaunchOptions('/chromium')).toStrictEqual({
       ArrayTest: ['--hide-scrollbars', '--mute-audio'],
       args: ['--test=true', '--no-sandbox'],

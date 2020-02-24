@@ -6,32 +6,37 @@ interface BrowserInstance {
   [endPoint: string]: playwright.BrowserServer;
 }
 
-const browserInstances: BrowserInstance = {};
+class Browser {
+  instances: BrowserInstance = {};
+  async launchServer(url: string, socket: net.Socket) {
+    const browserType = getBrowserType(url);
 
-export const runBrowserServer = async (url: string, socket: net.Socket) => {
-  const browserType = getBrowserType(url);
+    console.log(browserType + ' browser started.');
 
-  console.log(browserType + ' browser started.');
+    const browser = await playwright[browserType].launchServer(
+      getLaunchOptions(url),
+    );
 
-  const browser = await playwright[browserType].launchServer(
-    getLaunchOptions(url),
-  );
+    const endPoint = browser.wsEndpoint();
+    this.instances[endPoint] = browser;
 
-  const endPoint = browser.wsEndpoint();
-  browserInstances[endPoint] = browser;
+    socket.on('close', async () => {
+      await browser.close();
+      delete this.instances[endPoint];
+      console.log(browserType + ' browser terminated.');
+    });
 
-  socket.on('close', async () => {
-    console.log(browserType + ' browser terminated.');
-    await browser.close();
-    delete browserInstances[endPoint];
-  });
-
-  return endPoint;
-};
-
-export const killAllBrowserInstance = () => {
-  Object.keys(browserInstances).forEach(key => {
-    const browser = browserInstances[key];
-    browser.close();
-  });
-};
+    return endPoint;
+  }
+  async killAll() {
+    const { instances } = this;
+    const keys = Object.keys(instances);
+    for (let i = 0; i < keys.length; i++) {
+      const key = keys[i];
+      const browser = instances[key];
+      await browser.close();
+      delete instances[key];
+    }
+  }
+}
+export { Browser };

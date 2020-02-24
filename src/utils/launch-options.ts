@@ -41,7 +41,7 @@ const extractOptions = <T>(obj: object, startsWith: string) => {
 
 let launchOptions: LaunchOptions = {};
 
-export function extractProcessEnvOptions(showOptions: boolean = true) {
+export function extractProcessEnvOptions() {
   const envLaunchOptions = extractOptions<LaunchOptions>(process.env, 'server');
   const envFlags = extractOptions<{}>(process.env, 'flag');
 
@@ -61,10 +61,8 @@ export function extractProcessEnvOptions(showOptions: boolean = true) {
     ...restOfEnvLaunchOptions,
   };
 
-  if (showOptions && !process.env.__TEST__) {
-    console.log('Launch options:');
-    console.log(JSON.stringify(launchOptions, null, ' '));
-  }
+  console.log('Launch options:');
+  console.log(JSON.stringify(launchOptions, null, ' '));
 }
 
 export const getLaunchOptions = (url: string) => {

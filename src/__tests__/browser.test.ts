@@ -1,15 +1,38 @@
-import { runBrowserServer } from '../browser';
+import { Browser } from '../browser';
 import * as net from 'net';
-
-class SocketMock extends net.Socket {
-  on(_event: string, _listener: (...args: any[]) => void) {
-    return this;
-  }
-}
+import mockConsole from 'jest-mock-console';
+import { EventListenerMock } from './utils';
 
 describe('runBrowserServer', () => {
-  it('should return new end point', () => {
-    const endPoint = runBrowserServer('/chromium', new SocketMock());
+  beforeEach(async () => {
+    mockConsole();
+  });
+
+  it('should return new end point', async () => {
+    const browser = new Browser();
+    const socket = new EventListenerMock<net.Socket>();
+    const endPoint = await browser.launchServer('/chromium', socket);
     expect(endPoint).toBeDefined();
+  });
+
+  it('should close browser when socket closed ', async () => {
+    const browser = new Browser();
+    const socket = new EventListenerMock<net.Socket>();
+    const endPoint = await browser.launchServer('/chromium', socket);
+
+    await socket.mockEmit('close');
+
+    expect(console.log).toHaveBeenCalledWith('chromium browser started.');
+    expect(browser.instances[endPoint]).toBe(undefined);
+  });
+
+  it('should kill all browser', async () => {
+    const browser = new Browser();
+    const socket = new EventListenerMock<net.Socket>();
+    await browser.launchServer('/chromium', socket);
+    await browser.launchServer('/chromium', socket);
+    expect(Object.keys(browser.instances).length).toBe(2);
+    await browser.killAll();
+    expect(browser.instances).toStrictEqual({});
   });
 });
