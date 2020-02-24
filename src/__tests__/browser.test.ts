@@ -15,7 +15,7 @@ describe('runBrowserServer', () => {
     expect(endPoint).toBeDefined();
   });
 
-  it('should close browser when socket closed ', async () => {
+  it('should close browser when socket closed', async () => {
     const browser = new Browser();
     const socket = new EventListenerMock<net.Socket>();
     const endPoint = await browser.launchServer('/chromium', socket);

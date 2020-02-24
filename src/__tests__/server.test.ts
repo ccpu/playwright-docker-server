@@ -26,9 +26,12 @@ describe('server', () => {
 
   it('should shutdown on specified time', async () => {
     const mockFn = spyOn(server, 'shutdown');
-    server.startTimeOut(10);
-    expect(console.log).toHaveBeenCalledWith('Will shutdown after 10 seconds.');
+    server.startTimeOut(0.1);
+    expect(console.log).toHaveBeenCalledWith(
+      'Will shutdown after 0.1 seconds.',
+    );
     await new Promise(r => setTimeout(r, 11));
+    jest.runAllTimers();
     expect(mockFn).toBeCalledTimes(1);
   });
 });
