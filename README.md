@@ -123,7 +123,7 @@ Useful when only one job/socket required and docker need to be shutdown after jo
 docker run -it --rm -p 3000:3000 -e USE_ONCE=true  <image_name>
 ```
 
-- TIME_OUT (int)
+- DOCKER_TIMEOUT (number)
 
 Value in seconds, if not set docker will run forever.
 
@@ -136,6 +136,11 @@ docker run -it --rm -p 3000:3000 -e TIME_OUT=1200  <image_name>
 - DISABLE_MESSAGES (boolean)
 
 By default some messages are displayed in terminal, to disable it use `DISABLE_MESSAGES`.
+
+- BROWSER_SERVER_TIMEOUT (number)
+
+Value in seconds, if not set browser server will run forever.
+Set this value if browser server need to be close after specified time.
 
 ## Build All
 

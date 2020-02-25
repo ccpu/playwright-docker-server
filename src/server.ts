@@ -1,18 +1,18 @@
 import { setProxy, killProxy } from './proxy';
 import * as http from 'http';
-import { Browser } from './browser';
-import { TIME_OUT } from './constants';
+import { BrowserServer } from './browser';
+import { DOCKER_TIMEOUT } from './constants';
 
 export const httpServer = http.createServer();
 
-const browser = new Browser();
+const browser = new BrowserServer();
 
 export const startHttpServer = async () => {
   return new Promise((resolve, reject) => {
     httpServer
       .on('upgrade', async (req, socket, head) => {
-        const target = await browser.launchServer(req.url, socket);
-        setProxy(req, socket, head, target);
+        const server = await browser.launchServer(req.url, socket);
+        setProxy(req, socket, head, server.wsEndpoint());
       })
       .on('listening', () => {
         console.log('Server listening...');
@@ -56,4 +56,6 @@ export const startTimeOut = (timeout?: number) => {
   console.log('Will shutdown after ' + timeout + ' seconds.');
 };
 
-startTimeOut(process.env[TIME_OUT] && Number.parseInt(process.env[TIME_OUT]));
+startTimeOut(
+  process.env[DOCKER_TIMEOUT] && Number.parseInt(process.env[DOCKER_TIMEOUT]),
+);

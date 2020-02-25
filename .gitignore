@@ -13,8 +13,9 @@ coverage
 build/
 
 # VS Code
-.vscode
-!.vscode/tasks.js
+.vscode/*
+!.vscode/tasks.json
+!.vscode/launch.json
 
 # JetBrains IDEs
 .idea/

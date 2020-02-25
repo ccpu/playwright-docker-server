@@ -1,0 +1,46 @@
+{
+  // See https://go.microsoft.com/fwlink/?LinkId=733558
+  // for the documentation about the tasks.json format
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "watch",
+      "type": "npm",
+      "script": "build:watch",
+      "group": "build",
+      "problemMatcher": [],
+      "auto": true
+    },
+    {
+      "label": "test current file with cache",
+      "type": "shell",
+      "command": "npm",
+      "args": [
+        "test",
+        "--",
+        "${fileBasename}"
+      ]
+    },
+    {
+      "label": "test current file no cache",
+      "type": "shell",
+      "command": "npm",
+      "args": [
+        "test",
+        "--no-cache",
+        "--",
+        "${fileBasename}"
+      ]
+    },
+    {
+      "label": "test watch file",
+      "type": "shell",
+      "command": "jest --watch ${fileBasename} --coverage --collectCoverageOnlyFrom=${fileBasename}",
+      "presentation": {
+        "group": "watch",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    }
+  ]
+}

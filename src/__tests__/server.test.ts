@@ -1,10 +1,11 @@
-import * as server from '../server';
+import './utils/http-mock';
+import * as httpServer from '../server';
 
 import mockConsole from 'jest-mock-console';
 
 describe('server', () => {
   afterEach(async () => {
-    await server.shutdown();
+    await httpServer.shutdown();
   });
 
   beforeEach(() => {
@@ -13,21 +14,18 @@ describe('server', () => {
   });
 
   it('should server defined ', () => {
-    expect(server.startHttpServer).toBeDefined();
-    expect(server.httpServer).toBeDefined();
+    expect(httpServer.startHttpServer).toBeDefined();
+    expect(httpServer.httpServer).toBeDefined();
   });
+
   it('should start server and get message', async () => {
-    await server.startHttpServer();
-    expect(console.log).toHaveBeenCalledWith('Server listening...');
-  });
-  it('should start server and get message', async () => {
-    await server.startHttpServer();
+    await httpServer.startHttpServer();
     expect(console.log).toHaveBeenCalledWith('Server listening...');
   });
 
   it('should shutdown on specified time', async () => {
-    const mockFn = spyOn(server, 'shutdown');
-    server.startTimeOut(10);
+    const mockFn = spyOn(httpServer, 'shutdown');
+    httpServer.startTimeOut(10);
     expect(console.log).toHaveBeenCalledWith('Will shutdown after 10 seconds.');
     jest.runAllTimers();
     expect(mockFn).toBeCalledTimes(1);
