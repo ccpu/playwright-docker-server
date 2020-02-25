@@ -139,7 +139,7 @@ By default some messages are displayed in terminal, to disable it use `DISABLE_M
 
 - BROWSER_SERVER_TIMEOUT (number)
 
-Value in seconds, if not set browser server will run forever.
+Value in seconds, if not set browser server will run until browser.close() called.
 Set this value if browser server need to be close after specified time.
 
 ## Build All
