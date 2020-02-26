@@ -39,6 +39,8 @@ const extractOptions = <T>(obj: object, startsWith: string) => {
   return options;
 };
 
+const defaultArgs = ['--disable-dev-shm-usage', '--no-sandbox'];
+
 let launchOptions: LaunchOptions = {};
 
 export function extractProcessEnvOptions() {
@@ -56,7 +58,7 @@ export function extractProcessEnvOptions() {
     args: [
       ...flags,
       ...(launchOptionsArgs ? launchOptionsArgs : []),
-      '--no-sandbox',
+      ...defaultArgs,
     ],
     ...restOfEnvLaunchOptions,
   };
@@ -107,7 +109,7 @@ export const getLaunchOptions = (url: string) => {
         ...launchOptions.args,
         ...urlFlags,
         ...(urlArgs ? urlArgs : []),
-        '--no-sandbox',
+        ...defaultArgs,
       ]),
     ],
     ...restOfUrlLaunchOptions,

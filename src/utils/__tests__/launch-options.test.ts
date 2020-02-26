@@ -11,14 +11,14 @@ describe('getLaunchOptions', () => {
 
   it('should not have --no-sandbox options only', () => {
     expect(getLaunchOptions('/chromium')).toStrictEqual({
-      args: ['--no-sandbox'],
+      args: ['--disable-dev-shm-usage', '--no-sandbox'],
     });
   });
 
   it('should write options in console', () => {
     extractProcessEnvOptions();
     expect(getLaunchOptions('/chromium')).toStrictEqual({
-      args: ['--no-sandbox'],
+      args: ['--disable-dev-shm-usage', '--no-sandbox'],
     });
   });
 
@@ -31,7 +31,7 @@ describe('getLaunchOptions', () => {
     `,
       ),
     ).toStrictEqual({
-      args: ['--no-sandbox', '--debug-print=true'],
+      args: ['--disable-dev-shm-usage', '--no-sandbox', '--debug-print=true'],
       ignoreDefaultArgs: ['--hide-scrollbars', '--mute-audio'],
     });
   });
@@ -42,7 +42,7 @@ describe('getLaunchOptions', () => {
     extractProcessEnvOptions();
     expect(getLaunchOptions('/chromium')).toStrictEqual({
       ArrayTest: ['--hide-scrollbars', '--mute-audio'],
-      args: ['--test=true', '--no-sandbox'],
+      args: ['--test=true', '--disable-dev-shm-usage', '--no-sandbox'],
     });
   });
 });
