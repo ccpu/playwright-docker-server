@@ -1,7 +1,7 @@
 FROM playwright/base
 
 ARG PLAYWRIGHT_VERSION=latest
-ARG NPM_LOGLEVEL=notice
+ARG NPM_LOGLEVEL=info
 
 # Create app directory
 WORKDIR /home/pwuser

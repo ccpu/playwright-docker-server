@@ -169,3 +169,15 @@ docker build --rm -f Dockerfile -t playwright/server .
 ```
 
 > To set nodejs --loglevel use NPM_LOGLEVEL variable
+
+## Debugging
+
+To attached to the debugger do as follow:
+
+- Set DEBUG_MODE environment variable to true
+- Map debugger port to host (e.g. 9229:9229)
+
+```
+docker run -it --rm -p 3000:3000 -p 9229:9229 -e DEBUG_MODE=true playwright/server
+
+```

@@ -26,7 +26,8 @@
     "test": "jest --coverage",
     "test:no-cache": "jest --coverage --no-cache",
     "test:watch": "jest --watch",
-    "start": "node build/src/main.js"
+    "start": "node build/src/main.js",
+    "start-debug": "node --inspect=0.0.0.0 build/src/main.js"
   },
   "author": "mo doaie<mdoaie@yahoo.co.uk>",
   "license": "Apache-2.0",

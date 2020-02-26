@@ -20,6 +20,8 @@ class BrowserServer {
       getLaunchOptions(url),
     );
 
+    if (!server) return null;
+
     const endPoint = server.wsEndpoint();
     this.instances[endPoint] = { server, browserType };
 

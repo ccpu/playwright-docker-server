@@ -4,7 +4,7 @@ import * as httpProxy from 'http-proxy';
 import { shutdown } from './server';
 import { USE_ONCE } from './constants';
 
-export const proxy = httpProxy.createProxyServer();
+export const proxy = httpProxy.createProxyServer({ ignorePath: true });
 
 export const setProxy = (
   req: IncomingMessage,

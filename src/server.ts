@@ -12,7 +12,7 @@ export const startHttpServer = async () => {
     httpServer
       .on('upgrade', async (req, socket, head) => {
         const server = await browser.launchServer(req.url, socket);
-        setProxy(req, socket, head, server.wsEndpoint());
+        if (server) setProxy(req, socket, head, server.wsEndpoint());
       })
       .on('listening', () => {
         console.log('Server listening...');
