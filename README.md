@@ -171,16 +171,13 @@ docker build --rm -f Dockerfile -t playwright/server .
 
 ## Debugging
 
-To attached to the debugger do as follow:
-
-- Set DEBUG_MODE environment variable to true
-- Map debugger port to host (e.g. 9229:9229)
+For attaching the debugger to docker use following command:
 
 ```
-docker run -it --rm -p 3000:3000 -p 9229:9229 -e DEBUG_MODE=true playwright/server
-
+services:
+  browser-test:
+    image: playwright/server
+    ports:
+      - 3000:3000
+    command: npm run start-debug
 ```
-
-Alternatively
-
-use command `npm run start-debug`
