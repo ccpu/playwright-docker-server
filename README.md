@@ -171,7 +171,7 @@ docker build --rm -f Dockerfile -t playwright/server .
 
 ## Debugging
 
-For attaching the debugger to docker use following command:
+For attaching the debugger use following docker-compose:
 
 ```
 services:
