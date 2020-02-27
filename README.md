@@ -50,6 +50,7 @@ services:
       - 3000:3000
     environment:
       - SERVER_ignoreDefaultArgs=true
+      - SERVER_dumpio=true
 ```
 
 For options with the type of `array` simply do as follow:
@@ -179,3 +180,7 @@ To attached to the debugger do as follow:
 docker run -it --rm -p 3000:3000 -p 9229:9229 -e DEBUG_MODE=true playwright/server
 
 ```
+
+Alternatively
+
+use command `npm run start-debug`

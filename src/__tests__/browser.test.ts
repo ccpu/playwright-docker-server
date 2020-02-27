@@ -23,7 +23,7 @@ describe('runBrowserServer', () => {
 
     await socket.emit('close');
 
-    expect(console.log).toHaveBeenCalledWith('chromium browser started.');
+    expect(console.log).toHaveBeenCalledWith('chromium browser launched.');
     expect(browser.instances[server.wsEndpoint()]).toBe(undefined);
   });
 

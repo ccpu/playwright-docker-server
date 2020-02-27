@@ -9,10 +9,14 @@ describe('getLaunchOptions', () => {
     delete process.env['FLAG_flag_test'];
   });
 
-  it('should not have --no-sandbox options only', () => {
+  it('should chromium default options only', () => {
     expect(getLaunchOptions('/chromium')).toStrictEqual({
       args: ['--disable-dev-shm-usage'],
     });
+  });
+
+  it('should not have chromium default options for firefox', () => {
+    expect(getLaunchOptions('/firefox')).toStrictEqual({});
   });
 
   it('should write options in console', () => {

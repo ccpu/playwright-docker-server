@@ -16,6 +16,7 @@ class BrowserServer {
   async launchServer(url: string, socket: net.Socket) {
     const browserType = getBrowserType(url);
 
+    console.log(`\n\nLaunching ${browserType}...`);
     const server = await playwright[browserType].launchServer(
       getLaunchOptions(url),
     );
@@ -29,7 +30,7 @@ class BrowserServer {
       await this.kill(server);
     });
 
-    console.log(browserType + ' browser started.');
+    console.log(browserType + ' browser launched.');
 
     const timeout =
       process.env[BROWSER_SERVER_TIMEOUT] &&

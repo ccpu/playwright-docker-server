@@ -22,8 +22,6 @@ if (process.env[DEBUG_MODE] && !process.env[DEBUG_ENABLED]) {
     'Debugger listening on port 9229, to attach to debugger make sure to map port 9229 to the host.',
   );
 } else {
-  console.log('start app');
-
   if (process.env[DISABLE_MESSAGES] === 'true') {
     console.log = function() {};
     console.debug = function() {};

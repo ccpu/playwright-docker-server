@@ -40,7 +40,7 @@ const extractOptions = <T>(obj: object, startsWith: string) => {
   return options;
 };
 
-const defaultArgs = ['--disable-dev-shm-usage'];
+const chromiumDefaultArgs = ['--disable-dev-shm-usage'];
 
 export let launchOptions: LaunchOptions = {};
 
@@ -55,13 +55,17 @@ export function extractProcessEnvOptions() {
     ...restOfEnvLaunchOptions
   } = envLaunchOptions;
 
+  const allFlags = [...flags, ...(launchOptionsArgs ? launchOptionsArgs : [])];
+
   launchOptions = {
-    args: [...flags, ...(launchOptionsArgs ? launchOptionsArgs : [])],
+    ...(allFlags && allFlags.length ? { args: allFlags } : undefined),
     ...restOfEnvLaunchOptions,
   };
 
-  console.log('Launch options:');
-  console.log(JSON.stringify(launchOptions, null, ' '));
+  if (Object.keys(launchOptions).length > 0) {
+    console.log('Launch options:');
+    console.log(JSON.stringify(launchOptions, null, ' '));
+  }
 }
 
 export const getLaunchOptions = (url: string) => {
@@ -76,7 +80,10 @@ export const getLaunchOptions = (url: string) => {
   if (browserType === 'chromium') {
     launchOptionsCopy = {
       ...launchOptions,
-      args: [...(launchOptions.args ? launchOptions.args : []), ...defaultArgs],
+      args: [
+        ...(launchOptions.args ? launchOptions.args : []),
+        ...chromiumDefaultArgs,
+      ],
     };
   }
 
@@ -109,18 +116,19 @@ export const getLaunchOptions = (url: string) => {
 
   const { args: urlArgs, ...restOfUrlLaunchOptions } = urlLaunchOptions;
 
+  let newArgs = launchOptionsCopy.args;
+  newArgs = [
+    ...(newArgs ? newArgs : []),
+    ...urlFlags,
+    ...(urlArgs ? urlArgs : []),
+  ];
+
   const newOptions = {
     ...launchOptionsCopy,
-    args: [
-      ...new Set([
-        ...launchOptionsCopy.args,
-        ...urlFlags,
-        ...(urlArgs ? urlArgs : []),
-        ...defaultArgs,
-      ]),
-    ],
+    ...(newArgs ? { args: [...new Set(newArgs)] } : {}),
     ...restOfUrlLaunchOptions,
   };
+
   console.log(JSON.stringify(newOptions, null, ' '));
 
   return newOptions;
