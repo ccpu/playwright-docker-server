@@ -69,7 +69,7 @@ class BrowserServer {
     console.log(`Terminating ${browserType} browser...`);
     delete this.instances[endPoint];
     await server.close();
-    console.log(`Browser terminated.`);
+    console.log(`${browserType} browser terminated.`);
   }
 
   async killAll() {
