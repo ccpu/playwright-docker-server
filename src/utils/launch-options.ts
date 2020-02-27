@@ -1,5 +1,6 @@
 import { LaunchOptions } from 'playwright-core/lib/server/browserType';
 import { makeFlags } from './make-flags';
+import { getBrowserType } from './browser-type';
 
 const extractOptions = <T>(obj: object, startsWith: string) => {
   const options = Object.keys(obj).reduce(
@@ -39,9 +40,9 @@ const extractOptions = <T>(obj: object, startsWith: string) => {
   return options;
 };
 
-const defaultArgs = ['--disable-dev-shm-usage', '--no-sandbox'];
+const defaultArgs = ['--disable-dev-shm-usage'];
 
-let launchOptions: LaunchOptions = {};
+export let launchOptions: LaunchOptions = {};
 
 export function extractProcessEnvOptions() {
   const envLaunchOptions = extractOptions<LaunchOptions>(process.env, 'server');
@@ -55,11 +56,7 @@ export function extractProcessEnvOptions() {
   } = envLaunchOptions;
 
   launchOptions = {
-    args: [
-      ...flags,
-      ...(launchOptionsArgs ? launchOptionsArgs : []),
-      ...defaultArgs,
-    ],
+    args: [...flags, ...(launchOptionsArgs ? launchOptionsArgs : [])],
     ...restOfEnvLaunchOptions,
   };
 
@@ -68,12 +65,22 @@ export function extractProcessEnvOptions() {
 }
 
 export const getLaunchOptions = (url: string) => {
+  const browserType = getBrowserType(url);
+
   const dataArr = decodeURI(url)
     .split('/')
     .filter(x => x)
     .slice(1);
 
-  if (dataArr.length === 0) return launchOptions;
+  let launchOptionsCopy = launchOptions;
+  if (browserType === 'chromium') {
+    launchOptionsCopy = {
+      ...launchOptions,
+      args: [...(launchOptions.args ? launchOptions.args : []), ...defaultArgs],
+    };
+  }
+
+  if (dataArr.length === 0) return launchOptionsCopy;
 
   const queryStringObj = dataArr.reduce((newObj, queryString) => {
     const qualSymbolIndex = queryString.indexOf('=');
@@ -103,10 +110,10 @@ export const getLaunchOptions = (url: string) => {
   const { args: urlArgs, ...restOfUrlLaunchOptions } = urlLaunchOptions;
 
   const newOptions = {
-    ...launchOptions,
+    ...launchOptionsCopy,
     args: [
       ...new Set([
-        ...launchOptions.args,
+        ...launchOptionsCopy.args,
         ...urlFlags,
         ...(urlArgs ? urlArgs : []),
         ...defaultArgs,
@@ -118,5 +125,3 @@ export const getLaunchOptions = (url: string) => {
 
   return newOptions;
 };
-
-export { launchOptions };
