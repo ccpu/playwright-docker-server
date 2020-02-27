@@ -2,8 +2,6 @@
 
 Docker image to run playwright server inside docker.
 
-Currently only works with chromium; waiting for [#1081](https://github.com/microsoft/playwright/issues/1081) issue.
-
 Required playwright >= 0.11.0
 
 ## Usage
