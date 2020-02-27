@@ -23,7 +23,11 @@ describe('runBrowserServer', () => {
 
     await socket.emit('close');
 
-    expect(console.log).toHaveBeenCalledWith('chromium browser launched.');
+    const endPoint = server.wsEndpoint();
+
+    const guid = /((\w{4,12}-?)){5}/.exec(endPoint)[0];
+
+    expect(console.log).toHaveBeenCalledWith(`chromium launched (${guid}).`);
     expect(browser.instances[server.wsEndpoint()]).toBe(undefined);
   });
 

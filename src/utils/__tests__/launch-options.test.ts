@@ -11,7 +11,7 @@ describe('getLaunchOptions', () => {
 
   it('should chromium default options only', () => {
     expect(getLaunchOptions('/chromium')).toStrictEqual({
-      args: ['--disable-dev-shm-usage'],
+      args: ['--disable-dev-shm-usage', '--no-sandbox'],
     });
   });
 
@@ -22,7 +22,7 @@ describe('getLaunchOptions', () => {
   it('should write options in console', () => {
     extractProcessEnvOptions();
     expect(getLaunchOptions('/chromium')).toStrictEqual({
-      args: ['--disable-dev-shm-usage'],
+      args: ['--disable-dev-shm-usage', '--no-sandbox'],
     });
   });
 
@@ -35,7 +35,7 @@ describe('getLaunchOptions', () => {
     `,
       ),
     ).toStrictEqual({
-      args: ['--disable-dev-shm-usage', '--debug-print=true'],
+      args: ['--disable-dev-shm-usage', '--no-sandbox', '--debug-print=true'],
       ignoreDefaultArgs: ['--hide-scrollbars', '--mute-audio'],
     });
   });
@@ -46,7 +46,7 @@ describe('getLaunchOptions', () => {
     extractProcessEnvOptions();
     expect(getLaunchOptions('/chromium')).toStrictEqual({
       ArrayTest: ['--hide-scrollbars', '--mute-audio'],
-      args: ['--test=true', '--disable-dev-shm-usage'],
+      args: ['--test=true', '--disable-dev-shm-usage', '--no-sandbox'],
     });
   });
 });

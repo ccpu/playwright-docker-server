@@ -40,7 +40,7 @@ const extractOptions = <T>(obj: object, startsWith: string) => {
   return options;
 };
 
-const chromiumDefaultArgs = ['--disable-dev-shm-usage'];
+const chromiumDefaultArgs = ['--disable-dev-shm-usage', '--no-sandbox'];
 
 export let launchOptions: LaunchOptions = {};
 
