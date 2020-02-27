@@ -8,6 +8,7 @@ interface BrowserInstance {
     server: playwright.BrowserServer;
     timer?: any;
     browserType: string;
+    guid: string;
   };
 }
 
@@ -24,13 +25,20 @@ class BrowserServer {
     if (!server) return null;
 
     const endPoint = server.wsEndpoint();
-    this.instances[endPoint] = { server, browserType };
+
+    const guid = /((\w{4,12}-?)){5}/.exec(endPoint)[0];
+
+    this.instances[endPoint] = {
+      server,
+      browserType,
+      guid,
+    };
 
     socket.on('close', async () => {
       await this.kill(server);
     });
 
-    console.log(browserType + ' browser launched.');
+    console.log(`${browserType} launched (${guid}).`);
 
     const timeout =
       process.env[BROWSER_SERVER_TIMEOUT] &&
@@ -64,12 +72,12 @@ class BrowserServer {
     const endPoint = server.wsEndpoint();
     //if instance is undefined it means already in process of terminating
     if (!this.instances[endPoint]) return;
-    const { browserType } = this.instances[endPoint];
+    const { browserType, guid } = this.instances[endPoint];
     clearTimeout(this.instances[endPoint].timer);
-    console.log(`Terminating ${browserType} browser...`);
+    console.log(`Terminating ${browserType} (${guid}) ...`);
     delete this.instances[endPoint];
     await server.close();
-    console.log(`${browserType} browser terminated.`);
+    console.log(`${browserType} terminated (${guid}).`);
   }
 
   async killAll() {
