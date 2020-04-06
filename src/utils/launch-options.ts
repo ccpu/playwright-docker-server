@@ -1,4 +1,4 @@
-import { LaunchOptions } from 'playwright-core/lib/server/browserType';
+import { BrowserTypeLaunchServerOptions } from 'playwright-core/lib/server/browserType';
 import { makeFlags } from './make-flags';
 import { getBrowserType } from './browser-type';
 
@@ -42,10 +42,13 @@ const extractOptions = <T>(obj: object, startsWith: string) => {
 
 const chromiumDefaultArgs = ['--disable-dev-shm-usage', '--no-sandbox'];
 
-export let launchOptions: LaunchOptions = {};
+export let launchOptions: BrowserTypeLaunchServerOptions = {};
 
 export function extractProcessEnvOptions() {
-  const envLaunchOptions = extractOptions<LaunchOptions>(process.env, 'server');
+  const envLaunchOptions = extractOptions<BrowserTypeLaunchServerOptions>(
+    process.env,
+    'server',
+  );
   const envFlags = extractOptions<{}>(process.env, 'flag');
 
   const flags = makeFlags(envFlags);
@@ -105,13 +108,13 @@ export const getLaunchOptions = (url: string) => {
     return newObj;
   }, {});
 
-  const urlLaunchOptions = extractOptions<LaunchOptions>(
+  const urlLaunchOptions = extractOptions<BrowserTypeLaunchServerOptions>(
     queryStringObj,
     'server',
   );
 
   const urlFlags = makeFlags(
-    extractOptions<LaunchOptions>(queryStringObj, 'flag'),
+    extractOptions<BrowserTypeLaunchServerOptions>(queryStringObj, 'flag'),
   );
 
   const { args: urlArgs, ...restOfUrlLaunchOptions } = urlLaunchOptions;
@@ -123,7 +126,7 @@ export const getLaunchOptions = (url: string) => {
     ...(urlArgs ? urlArgs : []),
   ];
 
-  const newOptions = {
+  const newOptions: BrowserTypeLaunchServerOptions = {
     ...launchOptionsCopy,
     ...(newArgs ? { args: [...new Set(newArgs)] } : {}),
     ...restOfUrlLaunchOptions,

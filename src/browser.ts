@@ -1,5 +1,5 @@
 import * as net from 'net';
-import * as playwright from 'playwright-core';
+import * as playwright from 'playwright';
 import { getBrowserType, getLaunchOptions } from './utils';
 import { BROWSER_SERVER_TIMEOUT } from './constants';
 
@@ -18,6 +18,7 @@ class BrowserServer {
     const browserType = getBrowserType(url);
 
     console.log(`\n\nLaunching ${browserType}...`);
+
     const server = await playwright[browserType].launchServer(
       getLaunchOptions(url),
     );

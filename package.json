@@ -1,6 +1,6 @@
 {
   "name": "playwright-docker-server",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Minimalistic playwright server in docker.",
   "main": "build/src/main.js",
   "repository": "https://github.com/Cyrus-d/playwright-docker-server",
@@ -34,7 +34,7 @@
   "dependencies": {
     "http-proxy": "^1.18.0",
     "jest-mock-console": "^1.0.0",
-    "playwright": "^0.11.1",
+    "playwright": "^0.12.1",
     "tslib": "^1.10.0"
   }
 }
