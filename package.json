@@ -34,7 +34,7 @@
   "dependencies": {
     "http-proxy": "^1.18.0",
     "jest-mock-console": "^1.0.0",
-    "playwright": "^0.12.1",
+    "playwright": "^0.13.0",
     "tslib": "^1.10.0"
   }
 }
