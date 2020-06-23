@@ -153,14 +153,16 @@ docker build --rm -f Dockerfile -t playwright/server .
 
 ## Update playwright
 
-Update to latest playwright version:
+Before update make sure to stop `playwright/server` container and remove both `playwright/server` and 'playwright/package' images.
+
+Update to the latest playwright version:
 
 ```
 docker build --rm -f Dockerfile.package -t playwright/package .
 docker build --rm -f Dockerfile -t playwright/server .
 ```
 
-Update to specific playwright version:
+Update to the specific playwright version:
 
 ```
 docker build --rm -f Dockerfile.package -t playwright/package --build-arg  PLAYWRIGHT_VERSION=0.11.1 .
