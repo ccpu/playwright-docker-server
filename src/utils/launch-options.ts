@@ -1,54 +1,45 @@
-import { BrowserTypeLaunchServerOptions } from 'playwright-core/lib/server/browserType';
+import { LaunchOptions } from 'playwright/types/types';
 import { makeFlags } from './make-flags';
 import { getBrowserType } from './browser-type';
 
 const extractOptions = <T>(obj: object, startsWith: string) => {
-  const options = Object.keys(obj).reduce(
-    (newObj, key) => {
-      const envKey = key
-        .split('_')
-        .join('-')
-        .trim();
+  const options = Object.keys(obj).reduce((newObj, key) => {
+    const envKey = key.split('_').join('-').trim();
 
-      if (envKey.toLowerCase().startsWith(startsWith + '-')) {
-        const envVal = obj[key];
+    if (envKey.toLowerCase().startsWith(startsWith + '-')) {
+      const envVal = obj[key];
 
-        const optionKey = envKey
-          .replace(startsWith.toUpperCase() + '-', '')
-          .replace(startsWith.toLowerCase() + '-', '');
+      const optionKey = envKey
+        .replace(startsWith.toUpperCase() + '-', '')
+        .replace(startsWith.toLowerCase() + '-', '');
 
-        const val =
-          typeof envVal === 'string' &&
-          envVal.trimSpecialCharStart().startsWith('[')
-            ? JSON.parse(
-                envVal
-                  .trimSpecialCharStart()
-                  .trimSpecialCharEnd()
-                  .split("'")
-                  .join('"'),
-              )
-            : envVal;
+      const val =
+        typeof envVal === 'string' &&
+        envVal.trimSpecialCharStart().startsWith('[')
+          ? JSON.parse(
+              envVal
+                .trimSpecialCharStart()
+                .trimSpecialCharEnd()
+                .split("'")
+                .join('"'),
+            )
+          : envVal;
 
-        if (optionKey) newObj[optionKey] = val;
-      }
+      if (optionKey) newObj[optionKey] = val;
+    }
 
-      return newObj;
-    },
-    {} as T,
-  );
+    return newObj;
+  }, {} as T);
 
   return options;
 };
 
 const chromiumDefaultArgs = ['--disable-dev-shm-usage', '--no-sandbox'];
 
-export let launchOptions: BrowserTypeLaunchServerOptions = {};
+export let launchOptions: LaunchOptions = {};
 
 export function extractProcessEnvOptions() {
-  const envLaunchOptions = extractOptions<BrowserTypeLaunchServerOptions>(
-    process.env,
-    'server',
-  );
+  const envLaunchOptions = extractOptions<LaunchOptions>(process.env, 'server');
   const envFlags = extractOptions<{}>(process.env, 'flag');
 
   const flags = makeFlags(envFlags);
@@ -76,7 +67,7 @@ export const getLaunchOptions = (url: string) => {
 
   const dataArr = decodeURI(url)
     .split('/')
-    .filter(x => x)
+    .filter((x) => x)
     .slice(1);
 
   let launchOptionsCopy = launchOptions;
@@ -108,13 +99,13 @@ export const getLaunchOptions = (url: string) => {
     return newObj;
   }, {});
 
-  const urlLaunchOptions = extractOptions<BrowserTypeLaunchServerOptions>(
+  const urlLaunchOptions = extractOptions<LaunchOptions>(
     queryStringObj,
     'server',
   );
 
   const urlFlags = makeFlags(
-    extractOptions<BrowserTypeLaunchServerOptions>(queryStringObj, 'flag'),
+    extractOptions<LaunchOptions>(queryStringObj, 'flag'),
   );
 
   const { args: urlArgs, ...restOfUrlLaunchOptions } = urlLaunchOptions;
@@ -126,7 +117,7 @@ export const getLaunchOptions = (url: string) => {
     ...(urlArgs ? urlArgs : []),
   ];
 
-  const newOptions: BrowserTypeLaunchServerOptions = {
+  const newOptions: LaunchOptions = {
     ...launchOptionsCopy,
     ...(newArgs ? { args: [...new Set(newArgs)] } : {}),
     ...restOfUrlLaunchOptions,
