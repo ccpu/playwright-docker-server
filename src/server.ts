@@ -1,9 +1,9 @@
 import { setProxy, killProxy } from './proxy';
-import * as http from 'http';
+import { createServer } from 'http';
 import { BrowserServer } from './browser';
 import { DOCKER_TIMEOUT } from './constants';
 
-export const httpServer = http.createServer();
+export const httpServer = createServer();
 
 const browser = new BrowserServer();
 
@@ -21,7 +21,7 @@ export const startHttpServer = async () => {
       .on('close', () => {
         console.log('http server closed');
       })
-      .on('error', err => {
+      .on('error', (err) => {
         console.error(err);
         reject(err);
       })
@@ -42,7 +42,7 @@ export const shutdown = async () => {
   if (!process.env.__TEST__) process.exit(0);
 };
 
-process.on('SIGINT', function() {
+process.on('SIGINT', function () {
   shutdown();
 });
 

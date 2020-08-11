@@ -1,6 +1,5 @@
 import './utils/http-mock';
 import * as httpServer from '../server';
-
 import mockConsole from 'jest-mock-console';
 
 describe('server', () => {
