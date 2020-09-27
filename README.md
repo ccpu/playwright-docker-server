@@ -16,7 +16,7 @@ import * as playwright from 'playwright-core';
 (async () => {
   const browserType = 'chromium';
   const browser = await playwright[browserType].connect({
-    wsEndpoint: 'ws://127.0.0.1:3000?' + browserType,
+    wsEndpoint: 'ws://127.0.0.1:3000/' + browserType,
   });
   const context = await browser.newContext();
   const page = await context.newPage();
@@ -181,5 +181,6 @@ services:
     image: playwright/server
     ports:
       - 3000:3000
+      - 9229:9229
     command: npm run start-debug
 ```
