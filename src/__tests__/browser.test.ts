@@ -14,7 +14,7 @@ describe('runBrowserServer', () => {
     const socket = new EventListenerMock<net.Socket>();
     const endPoint = await browser.launchServer('/chromium', socket);
     expect(endPoint).toBeDefined();
-  });
+  },60000);
 
   it('should close browser when socket closed', async () => {
     const browser = new BrowserServer();
@@ -29,7 +29,7 @@ describe('runBrowserServer', () => {
 
     expect(console.log).toHaveBeenCalledWith(`chromium launched (${guid}).`);
     expect(browser.instances[server.wsEndpoint()]).toBe(undefined);
-  });
+  },60000);
 
   it('should kill all browser', async () => {
     const browser = new BrowserServer();
@@ -39,7 +39,7 @@ describe('runBrowserServer', () => {
     expect(Object.keys(browser.instances).length).toBe(2);
     await browser.killAll();
     expect(browser.instances).toStrictEqual({});
-  });
+  },60000);
 
   it(
     'should close browser if ' + BROWSER_SERVER_TIMEOUT + ' has been set',
@@ -54,6 +54,6 @@ describe('runBrowserServer', () => {
       delete process.env[BROWSER_SERVER_TIMEOUT];
       expect(Object.keys(browser.instances).length).toBe(0);
       expect(spy).toHaveBeenCalledTimes(1);
-    },
+    },60000
   );
 });
