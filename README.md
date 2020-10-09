@@ -144,11 +144,12 @@ Set this value if browser server need to be close after specified time.
 ## Build All
 
 ```
-npm run build
 
+npm run build
 docker build --rm -f Dockerfile.base -t playwright/base .
 docker build --rm -f Dockerfile.package -t playwright/package .
 docker build --rm -f Dockerfile -t playwright/server .
+
 ```
 
 ## Update playwright
@@ -158,6 +159,7 @@ Before update make sure to stop `playwright/server` container and remove both `p
 Update to the latest playwright version:
 
 ```
+npm run build
 docker build --rm -f Dockerfile.package -t playwright/package .
 docker build --rm -f Dockerfile -t playwright/server .
 ```
