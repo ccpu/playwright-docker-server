@@ -2,6 +2,7 @@ import { setProxy, killProxy } from './proxy';
 import { createServer } from 'http';
 import { BrowserServer } from './browser';
 import { DOCKER_TIMEOUT } from './constants';
+import { getPlaywrightVersion } from './utils';
 
 export const httpServer = createServer();
 
@@ -15,6 +16,7 @@ export const startHttpServer = async () => {
         if (server) setProxy(req, socket, head, server.wsEndpoint());
       })
       .on('listening', () => {
+        console.log(`Running playwright ${getPlaywrightVersion()}`);
         console.log('Server listening...');
         resolve();
       })
