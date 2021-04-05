@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getBrowserType = void 0;
-exports.getBrowserType = (url) => {
+const getBrowserType = (url) => {
     const lowerCaseUrl = url.toLowerCase();
     if (lowerCaseUrl.indexOf('chromium') > -1)
         return 'chromium';
@@ -11,4 +11,5 @@ exports.getBrowserType = (url) => {
         return 'webkit';
     return 'chromium';
 };
+exports.getBrowserType = getBrowserType;
 //# sourceMappingURL=browser-type.js.map

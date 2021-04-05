@@ -9,7 +9,7 @@ const constants_1 = require("./constants");
 const utils_1 = require("./utils");
 exports.httpServer = http_1.createServer();
 const browser = new browser_1.BrowserServer();
-exports.startHttpServer = () => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
+const startHttpServer = () => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
     return new Promise((resolve, reject) => {
         exports.httpServer
             .on('upgrade', (req, socket, head) => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
@@ -20,7 +20,7 @@ exports.startHttpServer = () => tslib_1.__awaiter(void 0, void 0, void 0, functi
             .on('listening', () => {
             console.log(`Running playwright ${utils_1.getPlaywrightVersion()}`);
             console.log('Server listening...');
-            resolve();
+            resolve(null);
         })
             .on('close', () => {
             console.log('http server closed');
@@ -32,7 +32,8 @@ exports.startHttpServer = () => tslib_1.__awaiter(void 0, void 0, void 0, functi
             .listen(3000);
     });
 });
-exports.shutdown = () => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
+exports.startHttpServer = startHttpServer;
+const shutdown = () => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
     try {
         proxy_1.killProxy();
         if (browser)
@@ -48,10 +49,11 @@ exports.shutdown = () => tslib_1.__awaiter(void 0, void 0, void 0, function* () 
     if (!process.env.__TEST__)
         process.exit(0);
 });
+exports.shutdown = shutdown;
 process.on('SIGINT', function () {
     exports.shutdown();
 });
-exports.startTimeOut = (timeout) => {
+const startTimeOut = (timeout) => {
     if (!timeout)
         return;
     const seconds = timeout * 1000;
@@ -61,5 +63,6 @@ exports.startTimeOut = (timeout) => {
     }), seconds);
     console.log('Will shutdown after ' + timeout + ' seconds.');
 };
+exports.startTimeOut = startTimeOut;
 exports.startTimeOut(process.env[constants_1.DOCKER_TIMEOUT] && Number.parseInt(process.env[constants_1.DOCKER_TIMEOUT]));
 //# sourceMappingURL=server.js.map

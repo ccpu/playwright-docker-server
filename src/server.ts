@@ -18,7 +18,7 @@ export const startHttpServer = async () => {
       .on('listening', () => {
         console.log(`Running playwright ${getPlaywrightVersion()}`);
         console.log('Server listening...');
-        resolve();
+        resolve(null);
       })
       .on('close', () => {
         console.log('http server closed');

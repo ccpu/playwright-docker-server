@@ -42,7 +42,7 @@ function extractProcessEnvOptions() {
     }
 }
 exports.extractProcessEnvOptions = extractProcessEnvOptions;
-exports.getLaunchOptions = (url) => {
+const getLaunchOptions = (url) => {
     const browserType = browser_type_1.getBrowserType(url);
     const dataArr = decodeURI(url)
         .split('/')
@@ -83,4 +83,5 @@ exports.getLaunchOptions = (url) => {
     console.log(JSON.stringify(newOptions, null, ' '));
     return newOptions;
 };
+exports.getLaunchOptions = getLaunchOptions;
 //# sourceMappingURL=launch-options.js.map
