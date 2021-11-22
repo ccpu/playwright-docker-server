@@ -1,4 +1,4 @@
-import { LaunchOptions } from 'playwright/types/types';
+import { LaunchOptions } from 'playwright-core/types/types';
 import { makeFlags } from './make-flags';
 import { getBrowserType } from './browser-type';
 
@@ -44,10 +44,8 @@ export function extractProcessEnvOptions() {
 
   const flags = makeFlags(envFlags);
 
-  const {
-    args: launchOptionsArgs,
-    ...restOfEnvLaunchOptions
-  } = envLaunchOptions;
+  const { args: launchOptionsArgs, ...restOfEnvLaunchOptions } =
+    envLaunchOptions;
 
   const allFlags = [...flags, ...(launchOptionsArgs ? launchOptionsArgs : [])];
 

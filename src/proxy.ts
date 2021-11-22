@@ -1,4 +1,4 @@
-import { IncomingMessage, IncomingHttpHeaders } from 'http';
+import { IncomingMessage } from 'http';
 import { Socket } from 'net';
 import { createProxyServer } from 'http-proxy';
 import { shutdown } from './server';
@@ -9,7 +9,7 @@ export const proxy = createProxyServer({ ignorePath: true });
 export const setProxy = (
   req: IncomingMessage,
   socket: Socket,
-  head: IncomingHttpHeaders,
+  head: Buffer,
   target: string,
 ) => {
   proxy.ws(req, socket, head, { target });

@@ -13,11 +13,11 @@
     "prettier": "~2.2.1",
     "rimraf": "^3.0.0",
     "ts-jest": "^26.5.4",
-    "tslint": "~6.1.3",
-    "tslint-config-prettier": "1.18.0",
-    "tslint-microsoft-contrib": "~6.2.0",
-    "tsutils": "~3.21.0",
-    "typescript": "~4.2.3"
+    "tslint": "^6.1.3",
+    "tslint-config-prettier": "^1.18.0",
+    "tslint-microsoft-contrib": "^6.2.0",
+    "tsutils": "^3.21.0",
+    "typescript": "^4.5.2"
   },
   "scripts": {
     "clean": "rimraf coverage build tmp",
@@ -33,8 +33,8 @@
   "author": "mo doaie<mdoaie@yahoo.co.uk>",
   "license": "Apache-2.0",
   "dependencies": {
+    "playwright": "^1.16.3",
     "http-proxy": "^1.18.1",
-    "playwright": "^1.10.0",
-    "tslib": "^2.1.0"
+    "tslib": "^2.3.1"
   }
 }

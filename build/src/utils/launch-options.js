@@ -32,8 +32,8 @@ exports.launchOptions = {};
 function extractProcessEnvOptions() {
     const envLaunchOptions = extractOptions(process.env, 'server');
     const envFlags = extractOptions(process.env, 'flag');
-    const flags = make_flags_1.makeFlags(envFlags);
-    const { args: launchOptionsArgs } = envLaunchOptions, restOfEnvLaunchOptions = tslib_1.__rest(envLaunchOptions, ["args"]);
+    const flags = (0, make_flags_1.makeFlags)(envFlags);
+    const { args: launchOptionsArgs } = envLaunchOptions, restOfEnvLaunchOptions = (0, tslib_1.__rest)(envLaunchOptions, ["args"]);
     const allFlags = [...flags, ...(launchOptionsArgs ? launchOptionsArgs : [])];
     exports.launchOptions = Object.assign(Object.assign({}, (allFlags && allFlags.length ? { args: allFlags } : undefined)), restOfEnvLaunchOptions);
     if (Object.keys(exports.launchOptions).length > 0) {
@@ -43,7 +43,7 @@ function extractProcessEnvOptions() {
 }
 exports.extractProcessEnvOptions = extractProcessEnvOptions;
 const getLaunchOptions = (url) => {
-    const browserType = browser_type_1.getBrowserType(url);
+    const browserType = (0, browser_type_1.getBrowserType)(url);
     const dataArr = decodeURI(url)
         .split('/')
         .filter((x) => x)
@@ -71,8 +71,8 @@ const getLaunchOptions = (url) => {
         return newObj;
     }, {});
     const urlLaunchOptions = extractOptions(queryStringObj, 'server');
-    const urlFlags = make_flags_1.makeFlags(extractOptions(queryStringObj, 'flag'));
-    const { args: urlArgs } = urlLaunchOptions, restOfUrlLaunchOptions = tslib_1.__rest(urlLaunchOptions, ["args"]);
+    const urlFlags = (0, make_flags_1.makeFlags)(extractOptions(queryStringObj, 'flag'));
+    const { args: urlArgs } = urlLaunchOptions, restOfUrlLaunchOptions = (0, tslib_1.__rest)(urlLaunchOptions, ["args"]);
     let newArgs = launchOptionsCopy.args;
     newArgs = [
         ...(newArgs ? newArgs : []),

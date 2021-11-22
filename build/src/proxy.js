@@ -4,7 +4,7 @@ exports.killProxy = exports.setProxy = exports.proxy = void 0;
 const http_proxy_1 = require("http-proxy");
 const server_1 = require("./server");
 const constants_1 = require("./constants");
-exports.proxy = http_proxy_1.createProxyServer({ ignorePath: true });
+exports.proxy = (0, http_proxy_1.createProxyServer)({ ignorePath: true });
 const setProxy = (req, socket, head, target) => {
     exports.proxy.ws(req, socket, head, { target });
     return exports.proxy;
@@ -24,6 +24,6 @@ exports.proxy.on('error', (err, _req, res) => {
 });
 exports.proxy.on('close', () => {
     if (process.env[constants_1.USE_ONCE] === 'true')
-        server_1.shutdown();
+        (0, server_1.shutdown)();
 });
 //# sourceMappingURL=proxy.js.map

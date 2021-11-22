@@ -3,6 +3,7 @@ import { createServer } from 'http';
 import { BrowserServer } from './browser';
 import { DOCKER_TIMEOUT } from './constants';
 import { getPlaywrightVersion } from './utils';
+import { Socket } from 'net';
 
 export const httpServer = createServer();
 
@@ -12,8 +13,8 @@ export const startHttpServer = async () => {
   return new Promise((resolve, reject) => {
     httpServer
       .on('upgrade', async (req, socket, head) => {
-        const server = await browser.launchServer(req.url, socket);
-        if (server) setProxy(req, socket, head, server.wsEndpoint());
+        const server = await browser.launchServer(req.url, socket as Socket);
+        if (server) setProxy(req, socket as Socket, head, server.wsEndpoint());
       })
       .on('listening', () => {
         console.log(`Running playwright ${getPlaywrightVersion()}`);
