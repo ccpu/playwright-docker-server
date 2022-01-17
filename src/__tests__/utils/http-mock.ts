@@ -8,6 +8,10 @@ jest.mock('http', () => {
       this.emit('listening');
       return this;
     }
+    on(ev: string) {
+      this.emit(ev);
+      return this;
+    }
   }
   return new Proxy();
 });

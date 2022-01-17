@@ -1,6 +1,6 @@
 {
   "name": "playwright-docker-server",
-  "version": "0.1.1",
+  "version": "2.0.0",
   "description": "Minimalistic playwright server in docker.",
   "main": "build/src/main.js",
   "repository": "https://github.com/Cyrus-d/playwright-docker-server",
@@ -33,8 +33,8 @@
   "author": "mo doaie<mdoaie@yahoo.co.uk>",
   "license": "Apache-2.0",
   "dependencies": {
-    "playwright": "^1.16.3",
     "http-proxy": "^1.18.1",
+    "playwright": "^1.17.2",
     "tslib": "^2.3.1"
   }
 }

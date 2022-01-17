@@ -30,12 +30,12 @@ import * as playwright from 'playwright-core';
 
 ## Environment variables
 
-### Server [LaunchOptions](https://github.com/microsoft/playwright/blob/master/docs/api.md#browsertypelaunchserveroptions)
+### Server [LaunchOptions](https://playwright.dev/docs/api/class-browsertype#browser-type-launch-server)
 
-To apply playwright server [launchOptions](https://github.com/microsoft/playwright/blob/master/docs/api.md#browsertypelaunchserveroptions) use `SERVER_` at beginning of the environment variable:
+To apply playwright server [launchOptions](https://playwright.dev/docs/api/class-browsertype#browser-type-launch-server) use `SERVER__` at the beginning of the environment variable:
 
 ```
-docker run -it --rm -p 3000:3000 -e SERVER_ignoreDefaultArgs=true <image_name>
+docker run -it --rm -p 3000:3000 -e SERVER__ignoreDefaultArgs=true <image_name>
 ```
 
 In docker-compose:
@@ -49,8 +49,8 @@ services:
     ports:
       - 3000:3000
     environment:
-      - SERVER_ignoreDefaultArgs=true
-      - SERVER_dumpio=true
+      - SERVER__ignoreDefaultArgs=true
+      - SERVER_firefox__devtools=true
 ```
 
 For options with the type of `array` simply do as follow:
@@ -66,16 +66,16 @@ services:
     ports:
       - 3000:3000
     environment:
-      - SERVER_ignoreDefaultArgs="['--hide-scrollbars','--mute-audio']"
+      - SERVER__ignoreDefaultArgs=["--hide-scrollbars","--mute-audio"]
 
 ```
 
 ### Chromium [Flags](https://peter.sh/experiments/chromium-command-line-switches/)
 
-To apply chromium [flags](https://peter.sh/experiments/chromium-command-line-switches/) use `FLAG_` at the beginning of environment variable:
+To apply chromium [flags](https://peter.sh/experiments/chromium-command-line-switches/) use `FLAG__` at the beginning of environment variable and replace all dashes with underline:
 
 ```
-docker run -it --rm -p 3000:3000 -e FLAG_debug_print=true <image_name>
+docker run -it --rm -p 3000:3000 -e FLAG__debug_print=true <image_name>
 ```
 
 In docker-compose:
@@ -89,28 +89,27 @@ services:
     ports:
       - 3000:3000
     environment:
-      - FLAG_debug_print=true
+      - FLAG__debug_print=true
+      - FLAG_chromium__allow_sandbox_debugging=false
 ```
 
-> Not all chromium flags has been test, some of the flag may crash the docker.
+> Not all chromium flags has been test, some of the flag may crash the playwright server.
 
 > Note that `no_sandbox` is reserved.
 
 ### URI Options
 
-Options can also passed with each socket request as follow:
+Options can also passed as query string with each socket request as follow:
 
 ```
   const browser = await playwright.chromium.connect({
-    wsEndpoint: `ws://127.0.0.1:3000/chromium/
-      flag-debug-print/
-      server-ignoreDefaultArgs=["--hide-scrollbars","--mute-audio"]
+    wsEndpoint: `ws://127.0.0.1:3000/chromium?flag--flag-option=true&server--server-option=["--server-a-1","--server-a-2"]
       `,
   });
 
 ```
 
-> Same as environment variable `flag-` and `server-` identifier need to be included at the beginning of option.
+> Same as environment variable `flag--` and `server--` identifier need to be included at the beginning of option.
 
 ### Docker options
 
