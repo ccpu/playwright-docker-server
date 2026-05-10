@@ -1,28 +1,151 @@
-# Logs
-logs
-*.log
-npm-debug.log*
-
+# -----------------------------
 # Dependencies
+# -----------------------------
 node_modules/
+packages/**/node_modules/
+tooling/**/node_modules/
+bower_components
+jspm_packages/
 
+# -----------------------------
+# Build Outputs
+# -----------------------------
+dist/
+build/
+lib/
+out/
+build/Release
+packages/**/dist/
+packages/**/build/
+packages/**/lib/
+packages/**/out/
+tooling/**/dist/
+tooling/**/build/
+tooling/**/lib/
+tooling/**/out/
+
+# -----------------------------
+# Runtime Data
+# -----------------------------
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# -----------------------------
 # Coverage
-coverage
-/build
+# -----------------------------
+coverage/
+*.lcov
+.nyc_output
 
-# VS Code
-.vscode/*
-!.vscode/tasks.json
-!.vscode/launch.json
+# -----------------------------
+# Tooling Caches
+# -----------------------------
+.rpt2_cache/
+.rts2_cache_cjs/
+.rts2_cache_es/
+.rts2_cache_umd/
+.grunt
+.lock-wscript
 
-# JetBrains IDEs
-.idea/
+# -----------------------------
+# TypeScript
+# -----------------------------
+*.tsbuildinfo
 
-# Optional npm cache directory
-.npm
-
-# Optional eslint cache
+# -----------------------------
+# Lint/Format
+# -----------------------------
 .eslintcache
+.stylelintcache
 
-# Misc
+# -----------------------------
+# Package Manager Caches
+# -----------------------------
+.npm
+.yarn-integrity
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+.pnp.*
+pnpm-debug.log*
+
+# -----------------------------
+# Output of 'npm pack'
+# -----------------------------
+*.tgz
+
+# -----------------------------
+# Environment Files
+# -----------------------------
+.env
+.env.*
+packages/**/.env
+packages/**/.env.*
+tooling/**/.env
+tooling/**/.env.*
+
+# -----------------------------
+# Parcel/Next/Nuxt/Gatsby/Vuepress
+# -----------------------------
+.cache
+.parcel-cache
+.next
+.nuxt
+public
+.vuepress/dist
+**/*.cache
+**/.cache*
+
+# -----------------------------
+# Serverless/FuseBox/DynamoDB/TernJS
+# -----------------------------
+.serverless/
+.fusebox/
+.dynamodb/
+.tern-port
+
+# -----------------------------
+# VSCode Test
+# -----------------------------
+.vscode-test
+
+# -----------------------------
+# REPL History
+# -----------------------------
+.node_repl_history
+
+# -----------------------------
+# IDE/Editor
+# -----------------------------
+.idea/
+*.swp
+*.swo
+*~
+
+# -----------------------------
+# OS Files
+# -----------------------------
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# -----------------------------
+# Logs
+# -----------------------------
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# -----------------------------
+# Turbo (Turborepo)
+# -----------------------------
+.turbo/
+.turbo-*
+
