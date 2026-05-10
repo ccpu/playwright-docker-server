@@ -30,7 +30,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
@@ -54,7 +54,7 @@ jobs:
 #     runs-on: ubuntu-latest
 #     steps:
 #       - name: Checkout repository
-#         uses: actions/checkout@v4
+#         uses: actions/checkout@v6
 
 #       - name: Run CodeQL Scanner
 #         uses: pixpilot/codeql-scanner@main
