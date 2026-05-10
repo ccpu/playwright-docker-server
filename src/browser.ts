@@ -15,9 +15,6 @@ interface BrowserInstance {
 
 const GUID_REGEX = /(?:\w{4,12}-?){5}/u;
 const MILLISECONDS_IN_SECOND = 1000;
-type LaunchServerOptions = Parameters<
-  typeof playwright.chromium.launchServer
->[0];
 
 class BrowserServer {
   instances: BrowserInstance = {};
@@ -31,7 +28,7 @@ class BrowserServer {
     console.warn(`\n\nLaunching ${browserType}...`);
 
     const server = await playwright[browserType].launchServer(
-      getLaunchOptions(url) as LaunchServerOptions,
+      getLaunchOptions(url),
     );
 
     const endPoint = server.wsEndpoint();
