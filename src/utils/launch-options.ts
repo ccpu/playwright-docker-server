@@ -57,10 +57,8 @@ export function extractProcessEnvOptions(browserType: BrowserTypes) {
 
   const flags = makeFlags(envFlags);
 
-  const {
-    args: launchOptionsArgs,
-    ...restOfEnvLaunchOptions
-  } = envLaunchOptions;
+  const { args: launchOptionsArgs, ...restOfEnvLaunchOptions } =
+    envLaunchOptions;
 
   const allFlags = [...flags, ...(launchOptionsArgs ? launchOptionsArgs : [])];
 

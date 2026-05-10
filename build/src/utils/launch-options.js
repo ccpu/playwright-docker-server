@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getLaunchOptions = exports.extractProcessEnvOptions = void 0;
+exports.getLaunchOptions = void 0;
+exports.extractProcessEnvOptions = extractProcessEnvOptions;
 const tslib_1 = require("tslib");
 const make_flags_1 = require("./make-flags");
 const browser_type_1 = require("./browser-type");
@@ -33,11 +34,10 @@ function extractProcessEnvOptions(browserType) {
     const envLaunchOptions = extractOptions(process.env, 'server', browserType);
     const envFlags = extractOptions(process.env, 'flag', browserType);
     const flags = (0, make_flags_1.makeFlags)(envFlags);
-    const { args: launchOptionsArgs } = envLaunchOptions, restOfEnvLaunchOptions = (0, tslib_1.__rest)(envLaunchOptions, ["args"]);
+    const { args: launchOptionsArgs } = envLaunchOptions, restOfEnvLaunchOptions = tslib_1.__rest(envLaunchOptions, ["args"]);
     const allFlags = [...flags, ...(launchOptionsArgs ? launchOptionsArgs : [])];
     return Object.assign(Object.assign({}, (allFlags && allFlags.length ? { args: allFlags } : undefined)), restOfEnvLaunchOptions);
 }
-exports.extractProcessEnvOptions = extractProcessEnvOptions;
 const getLaunchOptions = (url) => {
     const browserType = (0, browser_type_1.getBrowserType)(url);
     const launchOptions = extractProcessEnvOptions(browserType);
@@ -64,7 +64,7 @@ const getLaunchOptions = (url) => {
     });
     const urlLaunchOptions = extractOptions(queries, 'server', browserType);
     const urlFlags = (0, make_flags_1.makeFlags)(extractOptions(queries, 'flag', browserType));
-    const { args: urlArgs } = urlLaunchOptions, restOfUrlLaunchOptions = (0, tslib_1.__rest)(urlLaunchOptions, ["args"]);
+    const { args: urlArgs } = urlLaunchOptions, restOfUrlLaunchOptions = tslib_1.__rest(urlLaunchOptions, ["args"]);
     let newArgs = launchOptionsCopy.args;
     newArgs = [
         ...(newArgs ? newArgs : []),

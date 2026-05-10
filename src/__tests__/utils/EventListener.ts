@@ -15,8 +15,7 @@ class GenericEventListener {
 
 type GenericExtend<T> = GenericEventListener & T;
 
-const EventListenerMock: new <T>(data?: T) => GenericExtend<
-  T
-> = GenericEventListener as any;
+const EventListenerMock: new <T>(data?: T) => GenericExtend<T> =
+  GenericEventListener as any;
 
 export { EventListenerMock };

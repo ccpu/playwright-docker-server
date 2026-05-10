@@ -9,10 +9,10 @@ const constants_1 = require("./constants");
 const utils_1 = require("./utils");
 exports.httpServer = (0, http_1.createServer)();
 const browser = new browser_1.BrowserServer();
-const startHttpServer = () => (0, tslib_1.__awaiter)(void 0, void 0, void 0, function* () {
+const startHttpServer = () => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
     return new Promise((resolve, reject) => {
         exports.httpServer
-            .on('upgrade', (req, socket, head) => (0, tslib_1.__awaiter)(void 0, void 0, void 0, function* () {
+            .on('upgrade', (req, socket, head) => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
             const server = yield browser.launchServer(req.url, socket);
             if (server)
                 (0, proxy_1.setProxy)(req, socket, head, server.wsEndpoint());
@@ -33,7 +33,7 @@ const startHttpServer = () => (0, tslib_1.__awaiter)(void 0, void 0, void 0, fun
     });
 });
 exports.startHttpServer = startHttpServer;
-const shutdown = () => (0, tslib_1.__awaiter)(void 0, void 0, void 0, function* () {
+const shutdown = () => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
     try {
         (0, proxy_1.killProxy)();
         if (browser)
@@ -57,7 +57,7 @@ const startTimeOut = (timeout) => {
     if (!timeout)
         return;
     const seconds = timeout * 1000;
-    setTimeout(() => (0, tslib_1.__awaiter)(void 0, void 0, void 0, function* () {
+    setTimeout(() => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
         console.log('Timeout reached, shuting down the docker...');
         yield (0, exports.shutdown)();
     }), seconds);

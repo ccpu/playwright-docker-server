@@ -5,14 +5,12 @@
     "outDir": "build",
     "removeComments": true
   },
-  "include": [
-    "src/**/*"
-  ],
+  "include": ["src/**/*"],
   "exclude": [
     "node_modules",
     "./node_modules",
     "./node_modules/*",
     "**/node_modules/*",
-    "**/__tests__/**/*",
+    "**/__tests__/**/*"
   ]
 }

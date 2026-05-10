@@ -15,9 +15,7 @@ Object.assign(String.prototype, {
         return this.substring(getIndex(this), this.length);
     },
     trimSpecialCharEnd() {
-        const revStr = this.split('')
-            .reverse()
-            .join('');
+        const revStr = this.split('').reverse().join('');
         const endIndex = getIndex(revStr);
         return this.substring(0, this.length - endIndex);
     },

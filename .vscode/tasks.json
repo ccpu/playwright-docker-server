@@ -15,22 +15,13 @@
       "label": "test current file with cache",
       "type": "shell",
       "command": "npm",
-      "args": [
-        "test",
-        "--",
-        "${fileBasename}"
-      ]
+      "args": ["test", "--", "${fileBasename}"]
     },
     {
       "label": "test current file no cache",
       "type": "shell",
       "command": "npm",
-      "args": [
-        "test",
-        "--no-cache",
-        "--",
-        "${fileBasename}"
-      ]
+      "args": ["test", "--no-cache", "--", "${fileBasename}"]
     },
     {
       "label": "test watch file",
