@@ -16,6 +16,16 @@ const MILLISECONDS_IN_SECOND = 1000;
 const HTTP_OK_STATUS = 200;
 const HTTP_NOT_FOUND_STATUS = 404;
 
+function getListeningPort(): number {
+  const address = httpServer.address();
+
+  if (address === null || typeof address === 'string') {
+    return DEFAULT_HTTP_PORT;
+  }
+
+  return address.port;
+}
+
 function setHealthResponse(url: string | undefined, res: ServerResponse): void {
   if (url === '/' || url === '/health') {
     res.writeHead(HTTP_OK_STATUS, {
@@ -49,8 +59,14 @@ export async function startHttpServer(): Promise<void> {
         });
       })
       .on('listening', () => {
+        const port = getListeningPort();
+
         console.warn(`Running playwright ${getPlaywrightVersion()}`);
-        console.warn('Server listening...');
+        console.warn(`Server listening on port ${port}`);
+        console.warn('Health endpoints: /, /health');
+        console.warn(
+          `Open http://localhost:${port}/ or http://localhost:${port}/health`,
+        );
         resolve();
       })
       .on('close', () => {
