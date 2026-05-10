@@ -5,6 +5,34 @@ import { BROWSER_SERVER_TIMEOUT } from '../src/constants';
 import { EventListenerMock } from './utils';
 import { mockConsole } from './utils/mock-console';
 
+vi.mock('playwright', () => {
+  let endpointCounter = 0;
+
+  const createBrowserServer = () => {
+    const endpointId = String(++endpointCounter).padStart(12, '0');
+    const endpoint = `ws://127.0.0.1/devtools/browser/00000000-0000-0000-0000-${endpointId}`;
+
+    return {
+      close: vi.fn().mockResolvedValue(undefined),
+      wsEndpoint: () => endpoint,
+    };
+  };
+
+  const launchServer = vi.fn(async () => createBrowserServer());
+
+  return {
+    chromium: {
+      launchServer,
+    },
+    firefox: {
+      launchServer,
+    },
+    webkit: {
+      launchServer,
+    },
+  };
+});
+
 const GUID_REGEX = /(?:\w{4,12}-?){5}/u;
 
 describe('runBrowserServer', () => {
