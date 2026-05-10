@@ -1,4 +1,4 @@
-import { makeFlags } from '../make-flags';
+import { makeFlags } from '../../src/utils/make-flags';
 
 describe('makeFlags', () => {
   it('should return array of flags with two dash at beginning of each', () => {

@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { cwd } from 'node:process';
-import { getPlaywrightVersion } from '../get-playwright-version';
+import { getPlaywrightVersion } from '../../src/utils/get-playwright-version';
 
 interface PackageJson {
   dependencies?: Record<string, string>;

@@ -1,4 +1,4 @@
-import '../trim-special-char';
+import '../../src/utils/trim-special-char';
 
 describe('trim-special-char', () => {
   it('should remove special characters from beginning of string', () => {

@@ -1,4 +1,4 @@
-import { getBrowserType } from '../browser-type';
+import { getBrowserType } from '../../src/utils/browser-type';
 
 describe('getBrowserType', () => {
   it('should have valid browser type', () => {

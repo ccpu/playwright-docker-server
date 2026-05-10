@@ -1,7 +1,7 @@
 import type * as net from 'node:net';
 import { vi } from 'vitest';
-import { BrowserServer } from '../browser';
-import { BROWSER_SERVER_TIMEOUT } from '../constants';
+import { BrowserServer } from '../src/browser';
+import { BROWSER_SERVER_TIMEOUT } from '../src/constants';
 import { EventListenerMock } from './utils';
 import { mockConsole } from './utils/mock-console';
 

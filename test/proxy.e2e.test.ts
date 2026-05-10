@@ -3,7 +3,7 @@ import type { AddressInfo, Socket } from 'node:net';
 import { once } from 'node:events';
 import { createServer } from 'node:http';
 import { WebSocket, WebSocketServer } from 'ws';
-import { setProxy } from '../proxy';
+import { setProxy } from '../src/proxy';
 
 function getPort(server: HttpServer): number {
   const address = server.address() as AddressInfo | null;

@@ -1,5 +1,5 @@
 import { vi } from 'vitest';
-import * as httpServer from '../server';
+import * as httpServer from '../src/server';
 import { mockConsole } from './utils/mock-console';
 import './utils/http-mock';
 

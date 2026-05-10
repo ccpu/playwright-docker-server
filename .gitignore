@@ -8,6 +8,7 @@ node_modules/
 
 # Coverage
 coverage
+/build
 
 # VS Code
 .vscode/*

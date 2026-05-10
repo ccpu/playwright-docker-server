@@ -2,9 +2,9 @@ import { Buffer } from 'node:buffer';
 import { IncomingMessage } from 'node:http';
 import { Socket } from 'node:net';
 import { vi } from 'vitest';
-import { USE_ONCE } from '../constants';
-import { setProxy } from '../proxy';
-import * as server from '../server';
+import { USE_ONCE } from '../src/constants';
+import { setProxy } from '../src/proxy';
+import * as server from '../src/server';
 import { mockConsole } from './utils/mock-console';
 
 vi.mock('httpxy', () => {

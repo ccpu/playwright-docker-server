@@ -152,6 +152,70 @@ docker build --progress=plain --rm -f Dockerfile -t playwright/server .
 
 ```
 
+## Automated Build + Docker + Verify
+
+Use the release script to run all steps in order:
+
+1. Build project (`pnpm build`)
+2. Build Docker base image (`Dockerfile.base`)
+3. Build server image (`Dockerfile`)
+4. Optionally push image to registry
+5. Run app in Docker Desktop or locally
+6. Verify with HTTP check + Playwright websocket connect
+
+Command:
+
+```bash
+pnpm docker:release
+
+# Equivalent direct command
+pnpm exec tsx scripts/docker-build-push-run.ts
+```
+
+Examples:
+
+```bash
+# Interactive defaults (prompts for missing options)
+pnpm docker:release
+
+# Push to a custom registry
+pnpm docker:release -- --push --registry ghcr.io/my-org --image playwright/server --tag 2.0.0
+
+# Non-interactive run in Docker Desktop without pushing
+pnpm docker:release -- --non-interactive --run-target dockerdesktop --no-push
+
+# Verify using local Node runtime after build/docker build
+pnpm docker:release -- --run-target local --no-push
+```
+
+Supported options:
+
+- `--image <name>`: image name without tag (`playwright/server` by default)
+- `--base-image <name>`: base image name (`playwright/base` by default)
+- `--tag <tag>`: image tag (defaults to `package.json` version)
+- `--registry <registry>`: registry prefix, e.g. `ghcr.io/my-org`
+- `--push` / `--no-push`: enable or disable push step, when enabled image will be pushed to specified registry after build
+- `--container-name <name>`: container name when `--run-target dockerdesktop`
+- `--port <port>`: host port mapped to container port 3000
+- `--run-target <dockerdesktop|local>`: where runtime verification happens
+- `--non-interactive`: disable prompts and use defaults
+
+Quick runtime verification with curl:
+
+```bash
+# If you used default container port mapping
+curl -fsS http://127.0.0.1:3000/health
+
+# If you used a custom port (example: 3010)
+curl -fsS http://127.0.0.1:3010/health
+```
+
+Expected response:
+
+```json
+{ "status": "ok" }
+```
+
 ## Debugging
 
 For attaching the debugger use following docker-compose:

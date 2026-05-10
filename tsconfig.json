@@ -23,6 +23,6 @@
     "skipDefaultLibCheck": true,
     "skipLibCheck": true
   },
-  "include": ["src/**/*", "__tests__/**/*", "vitest.setup.ts"],
+  "include": ["src/**/*", "scripts/**/*", "test/**/*", "vitest.setup.ts"],
   "exclude": ["node_modules", "./node_modules", "./node_modules/*"]
 }

@@ -1,5 +1,5 @@
-import { mockConsole } from '../../__tests__/utils/mock-console';
-import { getLaunchOptions } from '../launch-options';
+import { getLaunchOptions } from '../../src/utils/launch-options';
+import { mockConsole } from './mock-console';
 
 describe('getLaunchOptions', () => {
   beforeEach(() => {

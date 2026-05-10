@@ -1,12 +1,13 @@
 import { vi } from 'vitest';
 
-import { proxy } from '../proxy';
-import { httpServer, startHttpServer } from '../server';
+import { proxy } from '../src/proxy';
+import { httpServer, startHttpServer } from '../src/server';
 import { mockConsole } from './utils/mock-console';
-import '../main';
+import '../src/main';
 
-vi.mock('../server', async () => {
-  const actual = await vi.importActual<typeof import('../server')>('../server');
+vi.mock('../src/server', async () => {
+  const actual =
+    await vi.importActual<typeof import('../src/server')>('../src/server');
 
   return {
     ...actual,

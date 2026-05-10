@@ -1,3 +1,4 @@
+import type { ServerResponse } from 'node:http';
 import type { Socket } from 'node:net';
 import { createServer } from 'node:http';
 import process from 'node:process';
@@ -12,10 +13,30 @@ const browser = new BrowserServer();
 const TEST_ENV_KEY = '__TEST__';
 const DEFAULT_HTTP_PORT = 3000;
 const MILLISECONDS_IN_SECOND = 1000;
+const HTTP_OK_STATUS = 200;
+const HTTP_NOT_FOUND_STATUS = 404;
+
+function setHealthResponse(url: string | undefined, res: ServerResponse): void {
+  if (url === '/' || url === '/health') {
+    res.writeHead(HTTP_OK_STATUS, {
+      'Content-Type': 'application/json; charset=utf-8',
+    });
+    res.end(JSON.stringify({ status: 'ok' }));
+    return;
+  }
+
+  res.writeHead(HTTP_NOT_FOUND_STATUS, {
+    'Content-Type': 'text/plain; charset=utf-8',
+  });
+  res.end('Not Found');
+}
 
 export async function startHttpServer(): Promise<void> {
   return new Promise<void>((resolve, reject) => {
     httpServer
+      .on('request', (req, res) => {
+        setHealthResponse(req.url, res);
+      })
       .on('upgrade', (req, socket, head) => {
         (async () => {
           const server = await browser.launchServer(

@@ -2,7 +2,7 @@ import {
   extractProcessEnvOptions,
   getBrowserType,
   getLaunchOptions,
-} from '../index';
+} from '../../src/utils';
 
 describe('getBrowserType', () => {
   it('should be defined', () => {
