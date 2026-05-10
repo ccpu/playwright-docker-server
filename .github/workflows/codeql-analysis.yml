@@ -1,0 +1,64 @@
+name: CodeQL Analyser
+
+permissions:
+  security-events: write
+  actions: read
+  contents: read
+  issues: write # Required for pixpilot/codeql-scanner@main
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+    branches:
+      - main
+      - master
+  schedule:
+    #        ┌───────────── minute (0 - 59)
+    #        │  ┌───────────── hour (0 - 23)
+    #        │  │ ┌───────────── day of the month (1 - 31)
+    #        │  │ │ ┌───────────── month (1 - 12 or JAN-DEC)
+    #        │  │ │ │ ┌───────────── day of the week (0 - 6 or SUN-SAT)
+    #        │  │ │ │ │
+    #        *  * * * *
+    - cron: '30 1 * * 0' # Every Sunday at 01:30 UTC
+
+jobs:
+  codeql-analysis:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          config-file: .github/codeql/codeql-config.yml
+
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v3
+
+      - name: Run CodeQL Scanner
+        uses: github/codeql-action/analyze@v3
+# -------------------------------------------------------------
+# Alternative: pixpilot/codeql-scanner@main
+# -------------------------------------------------------------
+# Use this ONLY if your repo is private and you do NOT have GitHub Enterprise.
+# The official CodeQL workflow (see above) is always preferred for security and
+# integration with GitHub Security UI.
+#
+# jobs:
+#   analyze:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Checkout repository
+#         uses: actions/checkout@v4
+
+#       - name: Run CodeQL Scanner
+#         uses: pixpilot/codeql-scanner@main
+#         with:
+#           token: ${{ secrets.GITHUB_TOKEN }}
+#           config-file: .github/codeql/codeql-config.yml
+

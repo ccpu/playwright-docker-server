@@ -1,0 +1,40 @@
+# GitHub Actions CI workflow for pnpm-based TypeScript project
+# This workflow runs tests, linting, type checks, and formatting checks on PRs and workflow calls
+
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+      - master
+      - next
+  pull_request:
+    branches:
+      - main
+      - master
+      - next
+  workflow_call:
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    name: JavaScript Tests
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup project
+        uses: ./.github/actions/setup-project
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Prettier check
+        run: pnpm format
+
+      - name: TypeScript check
+        run: pnpm typecheck
+
+      - name: Run tests
+        run: pnpm test
