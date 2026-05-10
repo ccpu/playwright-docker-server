@@ -1,4 +1,4 @@
-import { DOCKER_TIMEOUT, USE_ONCE, DISABLE_MESSAGES } from '../constants';
+import { DISABLE_MESSAGES, DOCKER_TIMEOUT, USE_ONCE } from '../constants';
 
 describe('constants', () => {
   it('should be valid value', () => {

@@ -1,9 +1,9 @@
-import { BrowserTypes } from '../typings';
+import type { BrowserTypes } from '../typings';
 
-export const getBrowserType = (url: string): BrowserTypes => {
+export function getBrowserType(url: string): BrowserTypes {
   const lowerCaseUrl = url.toLowerCase();
-  if (lowerCaseUrl.indexOf('chromium') > -1) return 'chromium';
-  if (lowerCaseUrl.indexOf('firefox') > -1) return 'firefox';
-  if (lowerCaseUrl.indexOf('webkit') > -1) return 'webkit';
+  if (lowerCaseUrl.includes('chromium')) return 'chromium';
+  if (lowerCaseUrl.includes('firefox')) return 'firefox';
+  if (lowerCaseUrl.includes('webkit')) return 'webkit';
   return 'chromium';
-};
+}

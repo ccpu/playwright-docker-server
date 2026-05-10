@@ -1,15 +1,15 @@
-import './utils/http-mock';
-import * as httpServer from '../server';
 import mockConsole from 'jest-mock-console';
+import * as httpServer from '../server';
+import './utils/http-mock';
 
 describe('server', () => {
-  afterEach(async () => {
-    await httpServer.shutdown();
-  });
-
   beforeEach(() => {
     mockConsole();
     jest.useFakeTimers();
+  });
+
+  afterEach(async () => {
+    await httpServer.shutdown();
   });
 
   it('should server defined ', () => {
@@ -19,14 +19,18 @@ describe('server', () => {
 
   it('should start server and get message', async () => {
     await httpServer.startHttpServer();
-    expect(console.log).toHaveBeenCalledWith('Server listening...');
+    expect(console.warn).toHaveBeenCalledWith('Server listening...');
   });
 
   it('should shutdown on specified time', async () => {
-    const mockFn = spyOn(httpServer, 'shutdown');
     httpServer.startTimeOut(10);
-    expect(console.log).toHaveBeenCalledWith('Will shutdown after 10 seconds.');
+    expect(console.warn).toHaveBeenCalledWith(
+      'Will shutdown after 10 seconds.',
+    );
     jest.runAllTimers();
-    expect(mockFn).toBeCalledTimes(1);
+    await Promise.resolve();
+    expect(console.warn).toHaveBeenCalledWith(
+      'Timeout reached, shuting down the docker...',
+    );
   });
 });

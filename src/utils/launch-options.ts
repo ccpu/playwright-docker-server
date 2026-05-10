@@ -1,85 +1,96 @@
-import { LaunchOptions } from 'playwright-core/types/types';
-import { makeFlags } from './make-flags';
+import type { LaunchOptions } from 'playwright-core/types/types';
+import type { BrowserTypes } from '../typings';
+import process from 'node:process';
 import { getBrowserType } from './browser-type';
-import { BrowserTypes } from '../typings';
+import { makeFlags } from './make-flags';
 
 const chromiumDefaultArgs = ['--disable-dev-shm-usage', '--no-sandbox'];
+type StringMap = Record<string, string>;
+type OptionSource = Record<string, string | undefined>;
 
-const extractOptions = <T>(
-  obj: object,
+function extractOptions<T extends Record<string, unknown>>(
+  obj: OptionSource,
   startsWith: string,
   browserType: BrowserTypes,
-) => {
-  const optionKeys = Object.keys(obj);
+): Partial<T> {
+  const options: Partial<T> = {};
 
-  const options = optionKeys.reduce((newObj, key) => {
-    const envKey = key.split('_').join('-').trim();
+  for (const [key, value] of Object.entries(obj)) {
+    if (value !== undefined) {
+      const envKey = key.split('_').join('-').trim();
 
-    const parts = envKey.split('--');
+      const parts = envKey.split('--');
+      const optionKey = parts[1]?.trim();
 
-    const optionKey = parts[1];
+      if (optionKey !== undefined && optionKey.length > 0) {
+        const keyParts = parts[0].split('-');
+        const keyPart = keyParts[0];
 
-    const keyParts = parts[0].split('-');
-    const keyPart = keyParts[0];
+        if (
+          keyPart.toLowerCase() === startsWith.toLowerCase() &&
+          (keyParts.length === 1 || keyParts[1] === browserType)
+        ) {
+          const trimmedValue = value.trimSpecialCharStart();
 
-    if (
-      keyPart.toLowerCase() === startsWith.toLowerCase() &&
-      (keyParts.length === 1 || keyParts[1] === browserType)
-    ) {
-      const envVal = obj[key];
-      // const v = envVal.substring(1, envVal.length - 1);
-
-      if (
-        envVal.trimSpecialCharStart().startsWith('[') &&
-        envVal.trimSpecialCharStart().endsWith(']')
-      ) {
-        const arrVal = JSON.parse(envVal);
-        newObj[optionKey] = arrVal;
-      } else {
-        newObj[optionKey] = envVal;
+          if (trimmedValue.startsWith('[') && trimmedValue.endsWith(']')) {
+            try {
+              const parsed = JSON.parse(value) as unknown;
+              options[optionKey as keyof T] = parsed as T[keyof T];
+            } catch {
+              options[optionKey as keyof T] = value as T[keyof T];
+            }
+          } else {
+            options[optionKey as keyof T] = value as T[keyof T];
+          }
+        }
       }
     }
-
-    return newObj;
-  }, {} as T);
+  }
 
   return options;
-};
+}
 
-export function extractProcessEnvOptions(browserType: BrowserTypes) {
-  const envLaunchOptions = extractOptions<LaunchOptions>(
+export function extractProcessEnvOptions(
+  browserType: BrowserTypes,
+): LaunchOptions {
+  const envLaunchOptions = extractOptions<
+    LaunchOptions & Record<string, unknown>
+  >(process.env, 'server', browserType);
+
+  const envFlags = extractOptions<Record<string, unknown>>(
     process.env,
-    'server',
+    'flag',
     browserType,
   );
 
-  const envFlags = extractOptions<{}>(process.env, 'flag', browserType);
-
   const flags = makeFlags(envFlags);
 
-  const { args: launchOptionsArgs, ...restOfEnvLaunchOptions } =
-    envLaunchOptions;
+  const launchOptionsArgs = Array.isArray(envLaunchOptions.args)
+    ? envLaunchOptions.args
+    : undefined;
+  const { args: _args, ...restOfEnvLaunchOptions } = envLaunchOptions;
 
-  const allFlags = [...flags, ...(launchOptionsArgs ? launchOptionsArgs : [])];
+  const allFlags = [...flags, ...(launchOptionsArgs ?? [])];
 
   return {
-    ...(allFlags && allFlags.length ? { args: allFlags } : undefined),
+    ...(allFlags.length > 0 ? { args: allFlags } : {}),
     ...restOfEnvLaunchOptions,
   };
 }
 
-export const getLaunchOptions = (url: string) => {
+export function getLaunchOptions(url: string): LaunchOptions {
   const browserType = getBrowserType(url);
   const launchOptions = extractProcessEnvOptions(browserType);
   let launchOptionsCopy = launchOptions;
 
   if (browserType === 'chromium') {
+    const existingArgs = Array.isArray(launchOptions.args)
+      ? launchOptions.args
+      : [];
+
     launchOptionsCopy = {
       ...launchOptions,
-      args: [
-        ...(launchOptions.args ? launchOptions.args : []),
-        ...chromiumDefaultArgs,
-      ],
+      args: [...existingArgs, ...chromiumDefaultArgs],
     };
   }
 
@@ -87,50 +98,49 @@ export const getLaunchOptions = (url: string) => {
 
   if (queryStringStartPosition === -1) {
     if (Object.keys(launchOptionsCopy).length > 0) {
-      console.log('Launch options:');
-      console.log(JSON.stringify(launchOptionsCopy, null, ' '));
+      console.warn('Launch options:');
+      console.warn(JSON.stringify(launchOptionsCopy, null, ' '));
     }
     return launchOptionsCopy;
   }
 
-  const paramsString = url.substring(url.indexOf('?'), url.length);
+  const paramsString = url.substring(queryStringStartPosition, url.length);
 
   const searchParams = new URLSearchParams(paramsString);
 
-  const queries = {};
+  const queries: StringMap = {};
   searchParams.forEach((val, key) => {
     queries[key] = val;
   });
 
-  const urlLaunchOptions = extractOptions<LaunchOptions>(
-    queries,
-    'server',
-    browserType,
-  );
+  const urlLaunchOptions = extractOptions<
+    LaunchOptions & Record<string, unknown>
+  >(queries, 'server', browserType);
 
   const urlFlags = makeFlags(
-    extractOptions<LaunchOptions>(queries, 'flag', browserType),
+    extractOptions<Record<string, unknown>>(queries, 'flag', browserType),
   );
 
-  const { args: urlArgs, ...restOfUrlLaunchOptions } = urlLaunchOptions;
+  const urlArgs = Array.isArray(urlLaunchOptions.args)
+    ? urlLaunchOptions.args
+    : [];
+  const { args: _urlArgs, ...restOfUrlLaunchOptions } = urlLaunchOptions;
 
-  let newArgs = launchOptionsCopy.args;
-  newArgs = [
-    ...(newArgs ? newArgs : []),
-    ...urlFlags,
-    ...(urlArgs ? urlArgs : []),
-  ];
+  const launchOptionArgs = Array.isArray(launchOptionsCopy.args)
+    ? launchOptionsCopy.args
+    : [];
+  const newArgs = [...launchOptionArgs, ...urlFlags, ...urlArgs];
 
   const newOptions: LaunchOptions = {
     ...launchOptionsCopy,
-    ...(newArgs ? { args: [...new Set(newArgs)] } : {}),
+    ...(newArgs.length > 0 ? { args: [...new Set(newArgs)] } : {}),
     ...restOfUrlLaunchOptions,
   };
 
   if (Object.keys(newOptions).length > 0) {
-    console.log('Launch options:');
-    console.log(JSON.stringify(launchOptions, null, ' '));
+    console.warn('Launch options:');
+    console.warn(JSON.stringify(newOptions, null, ' '));
   }
 
   return newOptions;
-};
+}

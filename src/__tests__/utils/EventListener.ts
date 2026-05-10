@@ -1,21 +1,34 @@
-type SocketMockEvents = { [key: string]: (args: any) => void | Promise<void> };
+interface SocketMockEvents {
+  [key: string]: (...args: unknown[]) => void | Promise<void>;
+}
 
 class GenericEventListener {
   allEvents: SocketMockEvents = {};
-  on(_event: string, _listener: (...args: any[]) => void) {
+  destroyed = false;
+
+  destroy(): void {
+    this.destroyed = true;
+  }
+
+  on(_event: string, _listener: (...args: unknown[]) => void): this {
     if (!this.allEvents) this.allEvents = {};
     this.allEvents[_event] = _listener;
     return this;
   }
-  async emit(event: string, ...args) {
-    // @ts-ignore
-    await this.allEvents[event](...args);
+
+  async emit(event: string, ...args: unknown[]): Promise<void> {
+    const listener = this.allEvents[event];
+    if (listener !== undefined) {
+      await listener(...args);
+    }
   }
 }
 
-type GenericExtend<T> = GenericEventListener & T;
+interface EventListenerMockConstructor {
+  new <T>(data?: T): GenericEventListener & T;
+}
 
-const EventListenerMock: new <T>(data?: T) => GenericExtend<T> =
-  GenericEventListener as any;
+const EventListenerMock =
+  GenericEventListener as unknown as EventListenerMockConstructor;
 
 export { EventListenerMock };

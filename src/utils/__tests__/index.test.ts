@@ -1,7 +1,7 @@
 import {
+  extractProcessEnvOptions,
   getBrowserType,
   getLaunchOptions,
-  extractProcessEnvOptions,
 } from '../index';
 
 describe('getBrowserType', () => {

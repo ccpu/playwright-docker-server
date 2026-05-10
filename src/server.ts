@@ -1,64 +1,87 @@
-import { setProxy, killProxy } from './proxy';
-import { createServer } from 'http';
+import type { Socket } from 'node:net';
+import { createServer } from 'node:http';
+import process from 'node:process';
 import { BrowserServer } from './browser';
 import { DOCKER_TIMEOUT } from './constants';
+import { killProxy, setProxy } from './proxy';
 import { getPlaywrightVersion } from './utils';
-import { Socket } from 'net';
 
 export const httpServer = createServer();
 
 const browser = new BrowserServer();
+const TEST_ENV_KEY = '__TEST__';
+const DEFAULT_HTTP_PORT = 3000;
+const MILLISECONDS_IN_SECOND = 1000;
 
-export const startHttpServer = async () => {
-  return new Promise((resolve, reject) => {
+export async function startHttpServer(): Promise<void> {
+  return new Promise<void>((resolve, reject) => {
     httpServer
-      .on('upgrade', async (req, socket, head) => {
-        const server = await browser.launchServer(req.url, socket as Socket);
-        if (server) setProxy(req, socket as Socket, head, server.wsEndpoint());
+      .on('upgrade', (req, socket, head) => {
+        (async () => {
+          const server = await browser.launchServer(
+            req.url ?? '',
+            socket as Socket,
+          );
+          setProxy(req, socket as Socket, head, server.wsEndpoint());
+        })().catch((error: unknown) => {
+          console.error(error);
+        });
       })
       .on('listening', () => {
-        console.log(`Running playwright ${getPlaywrightVersion()}`);
-        console.log('Server listening...');
-        resolve(null);
+        console.warn(`Running playwright ${getPlaywrightVersion()}`);
+        console.warn('Server listening...');
+        resolve();
       })
       .on('close', () => {
-        console.log('http server closed');
+        console.warn('http server closed');
       })
       .on('error', (err) => {
         console.error(err);
         reject(err);
       })
-      .listen(3000);
+      .listen(DEFAULT_HTTP_PORT);
   });
-};
+}
 
-export const shutdown = async () => {
+export async function shutdown(): Promise<void> {
   try {
     killProxy();
-    if (browser) await browser.killAll();
-    if (httpServer) httpServer.close();
-    console.log('Successful shutdown');
+    await browser.killAll();
+    httpServer.close();
+    console.warn('Successful shutdown');
   } catch (error) {
-    console.log(error);
+    console.error(error);
   }
-  process.removeAllListeners();
-  if (!process.env.__TEST__) process.exit(0);
-};
 
-process.on('SIGINT', function () {
-  shutdown();
+  process.removeAllListeners();
+  if (process.env[TEST_ENV_KEY] !== 'true') {
+    process.exit(0);
+  }
+}
+
+process.on('SIGINT', () => {
+  shutdown().catch((error: unknown) => {
+    console.error(error);
+  });
 });
 
-export const startTimeOut = (timeout?: number) => {
-  if (!timeout) return;
-  const seconds = timeout * 1000;
-  setTimeout(async () => {
-    console.log('Timeout reached, shuting down the docker...');
-    await shutdown();
-  }, seconds);
-  console.log('Will shutdown after ' + timeout + ' seconds.');
-};
+export function startTimeOut(timeout?: number): void {
+  if (timeout === undefined || timeout <= 0) {
+    return;
+  }
 
-startTimeOut(
-  process.env[DOCKER_TIMEOUT] && Number.parseInt(process.env[DOCKER_TIMEOUT]),
-);
+  const milliseconds = timeout * MILLISECONDS_IN_SECOND;
+  setTimeout(() => {
+    console.warn('Timeout reached, shuting down the docker...');
+    shutdown().catch((error: unknown) => {
+      console.error(error);
+    });
+  }, milliseconds);
+
+  console.warn(`Will shutdown after ${timeout} seconds.`);
+}
+
+const timeoutEnv = process.env[DOCKER_TIMEOUT];
+const timeout =
+  timeoutEnv !== undefined ? Number.parseInt(timeoutEnv, 10) : undefined;
+startTimeOut(timeout);

@@ -1,5 +1,5 @@
-import { getLaunchOptions } from '../launch-options';
 import mockConsole from 'jest-mock-console';
+import { getLaunchOptions } from '../launch-options';
 
 describe('getLaunchOptions', () => {
   beforeEach(() => {
@@ -45,8 +45,8 @@ describe('getLaunchOptions', () => {
   });
 
   it('should extract process.env options', () => {
-    process.env['SERVER__a'] = '["--server-a-1","--server-a-2"]';
-    process.env['FLAG__b'] = 'flag-b';
+    process.env.SERVER__a = '["--server-a-1","--server-a-2"]';
+    process.env.FLAG__b = 'flag-b';
 
     expect(getLaunchOptions('/chromium')).toStrictEqual({
       a: ['--server-a-1', '--server-a-2'],
@@ -55,11 +55,11 @@ describe('getLaunchOptions', () => {
   });
 
   it('should extract chrome browser process.env options', () => {
-    process.env['SERVER_chromium__a'] = 'server-chromium';
-    process.env['SERVER_firefox__b'] = 'server-firefox';
+    process.env.SERVER_chromium__a = 'server-chromium';
+    process.env.SERVER_firefox__b = 'server-firefox';
 
-    process.env['FLAG_chromium__a'] = 'flag-chromium';
-    process.env['FLAG_firefox__b'] = 'flag-firefox';
+    process.env.FLAG_chromium__a = 'flag-chromium';
+    process.env.FLAG_firefox__b = 'flag-firefox';
 
     expect(getLaunchOptions('/chromium')).toStrictEqual({
       a: 'server-chromium',

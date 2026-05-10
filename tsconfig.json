@@ -5,7 +5,7 @@
     "module": "commonjs",
     "moduleResolution": "node",
     "allowJs": true,
-    "strictNullChecks": false,
+    "strictNullChecks": true,
     "alwaysStrict": true,
     "noFallthroughCasesInSwitch": true,
     "noImplicitAny": false,
@@ -21,6 +21,6 @@
     "skipDefaultLibCheck": true,
     "skipLibCheck": true
   },
-  "include": ["src/**/*", "__tests__/**/*"],
+  "include": ["src/**/*", "__tests__/**/*", "jest.setup.ts"],
   "exclude": ["node_modules", "./node_modules", "./node_modules/*"]
 }

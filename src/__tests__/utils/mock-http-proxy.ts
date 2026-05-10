@@ -1,13 +1,18 @@
 import { EventListenerMock } from './EventListener';
+
 jest.mock('http-proxy', () => {
-  class Proxy extends EventListenerMock<{}> {
-    createProxyServer() {
+  class Proxy extends EventListenerMock<object> {
+    close() {
       return this;
     }
+
     ws() {
       return this;
     }
   }
-  return new Proxy();
+
+  return {
+    createProxyServer: () => new Proxy(),
+  };
 });
 export {};

@@ -1,7 +1,8 @@
-export const makeFlags = (flagObject: {}) => {
-  return Object.keys(flagObject).reduce((newArr, flag) => {
-    if (!['no-sandbox'].includes(flag))
-      newArr.push('--' + flag + '=' + flagObject[flag]);
+export function makeFlags(flagObject: Record<string, unknown>): string[] {
+  return Object.keys(flagObject).reduce<string[]>((newArr, flag) => {
+    if (flag !== 'no-sandbox') {
+      newArr.push(`--${flag}=${String(flagObject[flag])}`);
+    }
     return newArr;
   }, []);
-};
+}

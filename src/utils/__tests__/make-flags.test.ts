@@ -2,7 +2,7 @@ import { makeFlags } from '../make-flags';
 
 describe('makeFlags', () => {
   it('should return array of flags with two dash at beginning of each', () => {
-    expect(makeFlags({ ['test-flag']: true })).toStrictEqual([
+    expect(makeFlags({ 'test-flag': true })).toStrictEqual([
       '--test-flag=true',
     ]);
   });

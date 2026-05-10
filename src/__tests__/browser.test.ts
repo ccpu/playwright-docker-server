@@ -1,8 +1,10 @@
-import { BrowserServer } from '../browser';
-import * as net from 'net';
+import type * as net from 'node:net';
 import mockConsole from 'jest-mock-console';
-import { EventListenerMock } from './utils';
+import { BrowserServer } from '../browser';
 import { BROWSER_SERVER_TIMEOUT } from '../constants';
+import { EventListenerMock } from './utils';
+
+const GUID_REGEX = /(?:\w{4,12}-?){5}/u;
 
 describe('runBrowserServer', () => {
   beforeEach(async () => {
@@ -14,6 +16,7 @@ describe('runBrowserServer', () => {
     const socket = new EventListenerMock<net.Socket>();
     const endPoint = await browser.launchServer('/chromium', socket);
     expect(endPoint).toBeDefined();
+    await browser.killAll();
   }, 60000);
 
   it('should close browser when socket closed', async () => {
@@ -25,9 +28,9 @@ describe('runBrowserServer', () => {
 
     const endPoint = server.wsEndpoint();
 
-    const guid = /((\w{4,12}-?)){5}/.exec(endPoint)[0];
+    const guid = GUID_REGEX.exec(endPoint)?.[0];
 
-    expect(console.log).toHaveBeenCalledWith(`chromium launched (${guid}).`);
+    expect(console.warn).toHaveBeenCalledWith(`chromium launched (${guid}).`);
     expect(browser.instances[server.wsEndpoint()]).toBe(undefined);
   }, 60000);
 
@@ -41,20 +44,19 @@ describe('runBrowserServer', () => {
     expect(browser.instances).toStrictEqual({});
   }, 60000);
 
-  it(
-    'should close browser if ' + BROWSER_SERVER_TIMEOUT + ' has been set',
-    async () => {
-      jest.useFakeTimers();
-      const browser = new BrowserServer();
-      const spy = jest.spyOn(browser, 'kill');
-      const socket = new EventListenerMock<net.Socket>();
-      process.env[BROWSER_SERVER_TIMEOUT] = '1';
-      await browser.launchServer('/chromium', socket);
-      jest.runAllTimers();
-      delete process.env[BROWSER_SERVER_TIMEOUT];
-      expect(Object.keys(browser.instances).length).toBe(0);
-      expect(spy).toHaveBeenCalledTimes(1);
-    },
-    60000,
-  );
+  it(`should close browser if ${BROWSER_SERVER_TIMEOUT} has been set`, async () => {
+    const browser = new BrowserServer();
+    const spy = jest.spyOn(browser, 'kill');
+    const socket = new EventListenerMock<net.Socket>();
+    process.env[BROWSER_SERVER_TIMEOUT] = '1';
+    await browser.launchServer('/chromium', socket);
+    await new Promise<void>((resolve) => {
+      setTimeout(() => {
+        resolve();
+      }, 1200);
+    });
+    delete process.env[BROWSER_SERVER_TIMEOUT];
+    expect(Object.keys(browser.instances).length).toBe(0);
+    expect(spy).toHaveBeenCalledTimes(1);
+  }, 60000);
 });

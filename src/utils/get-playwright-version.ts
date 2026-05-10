@@ -1,13 +1,14 @@
-import path from 'path';
-import { cwd } from 'process';
+import { readFileSync } from 'node:fs';
+import path from 'node:path';
+import { cwd } from 'node:process';
 
-export const getPlaywrightVersion = () => {
+interface PackageJson {
+  dependencies?: Record<string, string>;
+}
+
+export function getPlaywrightVersion(): string {
   const packagePath = path.resolve(cwd(), 'package.json');
-
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const version = (
-    require(packagePath).dependencies['playwright'] as string
-  ).toString();
-
-  return version;
-};
+  const packageRaw = readFileSync(packagePath, 'utf8');
+  const packageJson = JSON.parse(packageRaw) as PackageJson;
+  return packageJson.dependencies?.playwright?.toString() ?? '';
+}
