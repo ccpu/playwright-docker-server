@@ -6,9 +6,13 @@ import { makeFlags } from './make-flags';
 
 const chromiumDefaultArgs = ['--disable-dev-shm-usage', '--no-sandbox'];
 type StringMap = Record<string, string>;
-type OptionSource = Record<string, string | undefined>;
+type OptionSource = Record<string, string>;
+type LaunchOptionValue = string | string[];
+type LaunchOptionsWithExtras = LaunchOptions & {
+  args?: string[];
+} & Record<string, LaunchOptionValue>;
 
-function extractOptions<T extends Record<string, unknown>>(
+function extractOptions<T extends Record<string, LaunchOptionValue>>(
   obj: OptionSource,
   startsWith: string,
   browserType: BrowserTypes,
@@ -34,13 +38,21 @@ function extractOptions<T extends Record<string, unknown>>(
 
           if (trimmedValue.startsWith('[') && trimmedValue.endsWith(']')) {
             try {
-              const parsed = JSON.parse(value) as unknown;
-              options[optionKey as keyof T] = parsed as T[keyof T];
+              const parsed: unknown = JSON.parse(trimmedValue);
+
+              if (
+                Array.isArray(parsed) &&
+                parsed.every((item): item is string => typeof item === 'string')
+              ) {
+                options[optionKey as keyof T] = parsed;
+              } else {
+                options[optionKey as keyof T] = value;
+              }
             } catch {
-              options[optionKey as keyof T] = value as T[keyof T];
+              options[optionKey as keyof T] = value;
             }
           } else {
-            options[optionKey as keyof T] = value as T[keyof T];
+            options[optionKey as keyof T] = value;
           }
         }
       }
@@ -52,13 +64,15 @@ function extractOptions<T extends Record<string, unknown>>(
 
 export function extractProcessEnvOptions(
   browserType: BrowserTypes,
-): LaunchOptions {
-  const envLaunchOptions = extractOptions<
-    LaunchOptions & Record<string, unknown>
-  >(process.env, 'server', browserType);
+): LaunchOptionsWithExtras {
+  const envLaunchOptions = extractOptions<LaunchOptionsWithExtras>(
+    process.env as OptionSource,
+    'server',
+    browserType,
+  );
 
-  const envFlags = extractOptions<Record<string, unknown>>(
-    process.env,
+  const envFlags = extractOptions<Record<string, string>>(
+    process.env as OptionSource,
     'flag',
     browserType,
   );
@@ -78,7 +92,7 @@ export function extractProcessEnvOptions(
   };
 }
 
-export function getLaunchOptions(url: string): LaunchOptions {
+export function getLaunchOptions(url: string): LaunchOptionsWithExtras {
   const browserType = getBrowserType(url);
   const launchOptions = extractProcessEnvOptions(browserType);
   let launchOptionsCopy = launchOptions;
@@ -113,12 +127,14 @@ export function getLaunchOptions(url: string): LaunchOptions {
     queries[key] = val;
   });
 
-  const urlLaunchOptions = extractOptions<
-    LaunchOptions & Record<string, unknown>
-  >(queries, 'server', browserType);
+  const urlLaunchOptions = extractOptions<LaunchOptionsWithExtras>(
+    queries,
+    'server',
+    browserType,
+  );
 
   const urlFlags = makeFlags(
-    extractOptions<Record<string, unknown>>(queries, 'flag', browserType),
+    extractOptions<Record<string, string>>(queries, 'flag', browserType),
   );
 
   const urlArgs = Array.isArray(urlLaunchOptions.args)
