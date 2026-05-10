@@ -2,9 +2,11 @@ import type { Buffer } from 'node:buffer';
 import type { IncomingMessage } from 'node:http';
 import type { Socket } from 'node:net';
 import process from 'node:process';
-import { createProxyServer } from 'http-proxy';
+import { createProxyServer } from 'httpxy';
 import { USE_ONCE } from './constants';
 import { shutdown } from './server';
+
+const PROXY_ERROR_STATUS = 500;
 
 export const proxy = createProxyServer({ ignorePath: true });
 
@@ -14,7 +16,11 @@ export function setProxy(
   head: Buffer,
   target: string,
 ): typeof proxy {
-  proxy.ws(req, socket, head, { target });
+  Promise.resolve(proxy.ws(req, socket, { target }, head)).catch(
+    (error: unknown) => {
+      console.error(error);
+    },
+  );
   return proxy;
 }
 
@@ -32,7 +38,9 @@ proxy.on('error', (err: Error, _req, res: unknown) => {
       end?: (message: string) => void;
     };
 
-    httpResponse.writeHead?.(500, { 'Content-Type': 'text/plain' });
+    httpResponse.writeHead?.(PROXY_ERROR_STATUS, {
+      'Content-Type': 'text/plain',
+    });
     httpResponse.end?.('Issue communicating with browser');
   }
 });

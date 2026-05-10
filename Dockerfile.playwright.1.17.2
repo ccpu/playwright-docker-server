@@ -12,12 +12,9 @@ ARG NPM_LOGLEVEL=info
 
 COPY . .
 
-RUN rm yarn.lock
+RUN rm -f yarn.lock
 
 RUN npm install --loglevel ${NPM_LOGLEVEL} --force
-
-# Somehow playwright@1.17.1 installed above, hence forcing installation of 1.17.2
-RUN npm install playwright@1.17.2
 
 CMD [ "node", "build/src/main.js" ]
 

@@ -1,15 +1,16 @@
-import mockConsole from 'jest-mock-console';
+import { vi } from 'vitest';
 
 import { proxy } from '../proxy';
 import { httpServer, startHttpServer } from '../server';
+import { mockConsole } from './utils/mock-console';
 import '../main';
 
-jest.mock('../server', () => {
-  const actual = jest.requireActual('../server');
+vi.mock('../server', async () => {
+  const actual = await vi.importActual<typeof import('../server')>('../server');
 
   return {
     ...actual,
-    startHttpServer: jest.fn().mockResolvedValue(undefined),
+    startHttpServer: vi.fn().mockResolvedValue(undefined),
   };
 });
 

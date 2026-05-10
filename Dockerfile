@@ -12,7 +12,7 @@ ARG NPM_LOGLEVEL=info
 
 COPY . .
 
-RUN rm yarn.lock
+RUN rm -f yarn.lock
 
 RUN npm install --loglevel ${NPM_LOGLEVEL} --force
 

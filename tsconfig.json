@@ -4,6 +4,8 @@
     "jsx": "react",
     "module": "commonjs",
     "moduleResolution": "node",
+    "ignoreDeprecations": "6.0",
+    "types": ["node", "vitest/globals"],
     "allowJs": true,
     "strictNullChecks": true,
     "alwaysStrict": true,
@@ -21,6 +23,6 @@
     "skipDefaultLibCheck": true,
     "skipLibCheck": true
   },
-  "include": ["src/**/*", "__tests__/**/*", "jest.setup.ts"],
+  "include": ["src/**/*", "__tests__/**/*", "vitest.setup.ts"],
   "exclude": ["node_modules", "./node_modules", "./node_modules/*"]
 }

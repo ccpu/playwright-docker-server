@@ -1,4 +1,4 @@
-import mockConsole from 'jest-mock-console';
+import { mockConsole } from '../../__tests__/utils/mock-console';
 import { getLaunchOptions } from '../launch-options';
 
 describe('getLaunchOptions', () => {

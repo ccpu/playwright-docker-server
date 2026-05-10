@@ -2,7 +2,7 @@
 
 Docker image to run playwright server inside docker.
 
-Required playwright >= 0.11.0
+Required Playwright version should match the Docker image tag.
 
 ## Usage
 
@@ -143,9 +143,9 @@ Set this value if browser server need to be close after specified time.
 ## Build All
 
 ```
-npm run build
+pnpm run build
 
-Important: Change playwright version in Dockerfile.base to match installed package
+Important: keep Dockerfile.base Playwright image tag in sync with package.json playwright version
 
 docker build --rm -f Dockerfile.base -t playwright/base .
 docker build --progress=plain --rm -f Dockerfile -t playwright/server .

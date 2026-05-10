@@ -1,11 +1,12 @@
-import mockConsole from 'jest-mock-console';
+import { vi } from 'vitest';
 import * as httpServer from '../server';
+import { mockConsole } from './utils/mock-console';
 import './utils/http-mock';
 
 describe('server', () => {
   beforeEach(() => {
     mockConsole();
-    jest.useFakeTimers();
+    vi.useFakeTimers();
   });
 
   afterEach(async () => {
@@ -27,7 +28,7 @@ describe('server', () => {
     expect(console.warn).toHaveBeenCalledWith(
       'Will shutdown after 10 seconds.',
     );
-    jest.runAllTimers();
+    vi.runAllTimers();
     await Promise.resolve();
     expect(console.warn).toHaveBeenCalledWith(
       'Timeout reached, shuting down the docker...',

@@ -25,19 +25,18 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "Jest Current File",
-      "program": "${workspaceFolder}/node_modules/.bin/jest",
+      "name": "Vitest Current File",
+      "program": "${workspaceFolder}/node_modules/vitest/vitest.mjs",
       "args": [
-        "--runTestsByPath",
+        "run",
         "${relativeFile}",
-        "--config",
-        "jest.config.js"
+        "--coverage"
       ],
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen",
       "disableOptimisticBPs": true,
       "windows": {
-        "program": "${workspaceFolder}/node_modules/jest/bin/jest"
+        "program": "${workspaceFolder}/node_modules/vitest/vitest.mjs"
       }
     }
   ]

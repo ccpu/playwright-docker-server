@@ -1,25 +1,31 @@
-import { EventListenerMock } from './EventListener';
+import { vi } from 'vitest';
 
-jest.mock('http', () => {
-  class Proxy extends EventListenerMock<object> {
-    createServer() {
+vi.mock('node:http', () => {
+  class HttpServerMock {
+    private allEvents: Record<string, (...args: unknown[]) => void> = {};
+
+    on(event: string, listener: (...args: unknown[]) => void): this {
+      this.allEvents[event] = listener;
+      return this;
+    }
+
+    private emit(event: string): void {
+      this.allEvents[event]?.();
+    }
+
+    close() {
+      this.emit('close');
       return this;
     }
 
     listen() {
-      this.emit('listening').catch(() => {
-        // ignore mock event errors in tests
-      });
-      return this;
-    }
-
-    on(ev: string) {
-      this.emit(ev).catch(() => {
-        // ignore mock event errors in tests
-      });
+      this.emit('listening');
       return this;
     }
   }
-  return new Proxy();
+
+  return {
+    createServer: () => new HttpServerMock(),
+  };
 });
 export {};

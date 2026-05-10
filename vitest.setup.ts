@@ -1,6 +1,7 @@
 import { performance } from 'node:perf_hooks';
 import process from 'node:process';
 import { AbortController } from 'abort-controller';
+import { afterEach, vi } from 'vitest';
 
 import './src/utils/trim-special-char';
 
@@ -22,3 +23,8 @@ if (globalThis.AbortController === undefined) {
     writable: true,
   });
 }
+
+afterEach(() => {
+  vi.restoreAllMocks();
+  vi.useRealTimers();
+});

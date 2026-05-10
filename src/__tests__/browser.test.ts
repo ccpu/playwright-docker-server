@@ -1,8 +1,9 @@
 import type * as net from 'node:net';
-import mockConsole from 'jest-mock-console';
+import { vi } from 'vitest';
 import { BrowserServer } from '../browser';
 import { BROWSER_SERVER_TIMEOUT } from '../constants';
 import { EventListenerMock } from './utils';
+import { mockConsole } from './utils/mock-console';
 
 const GUID_REGEX = /(?:\w{4,12}-?){5}/u;
 
@@ -46,7 +47,7 @@ describe('runBrowserServer', () => {
 
   it(`should close browser if ${BROWSER_SERVER_TIMEOUT} has been set`, async () => {
     const browser = new BrowserServer();
-    const spy = jest.spyOn(browser, 'kill');
+    const spy = vi.spyOn(browser, 'kill');
     const socket = new EventListenerMock<net.Socket>();
     process.env[BROWSER_SERVER_TIMEOUT] = '1';
     await browser.launchServer('/chromium', socket);
