@@ -8,6 +8,7 @@
   "repository": "https://github.com/Cyrus-d/playwright-docker-server",
   "main": "build/src/main.js",
   "scripts": {
+    "docker:release": "tsx scripts/docker-build-push-run.ts",
     "clean": "rimraf coverage build tmp",
     "build": "pnpm run clean && tsc -p tsconfig.release.json",
     "build:watch": "tsc -w -p tsconfig.release.json",
@@ -24,7 +25,6 @@
     "test": "vitest run --coverage",
     "test:no-cache": "vitest run --coverage --no-cache",
     "test:watch": "vitest --coverage",
-    "docker:release": "tsx scripts/docker-build-push-run.ts",
     "prepare": "husky || exit 0",
     "lint-staged": "lint-staged",
     "commitlint": "commitlint",
