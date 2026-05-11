@@ -157,11 +157,18 @@ docker build --progress=plain --rm -f Dockerfile -t playwright/server .
 Use the release script to run all steps in order:
 
 1. Build project (`pnpm build`)
-2. Build Docker base image (`Dockerfile.base`)
-3. Build server image (`Dockerfile`)
-4. Optionally push image to registry
-5. Run app in Docker Desktop or locally
-6. Verify with HTTP check + Playwright websocket connect
+2. Remove previous runtime container/image references for a fresh rebuild
+3. Build Docker base image (`Dockerfile.base`)
+4. Build server image (`Dockerfile`)
+5. Optionally push image to registry
+6. Run app in Docker Desktop or locally
+7. Verify with HTTP check + Playwright websocket connect (chromium, webkit, firefox)
+8. Clean up stale images related to this project (enabled by default)
+
+When `--run-target dockerdesktop` is used, the script runs container with:
+
+- `--restart unless-stopped`
+- `--security-opt seccomp=unconfined` (required for reliable Firefox launch in Docker)
 
 Command:
 
@@ -198,13 +205,14 @@ Supported options:
 - `--container-name <name>`: container name when `--run-target dockerdesktop`
 - `--port <port>`: host port mapped to container port 3000
 - `--run-target <dockerdesktop|local>`: where runtime verification happens
+- `--cleanup` / `--no-cleanup`: remove stale images related to this project after verification (including the base image tag; default: cleanup enabled)
 - `--non-interactive`: disable prompts and use defaults
 
 Quick runtime verification with curl:
 
 ```bash
 # If you used default container port mapping
-curl -fsS http://127.0.0.1:3000/health
+curl -fsS http://127.0.0.1:3010/health
 
 # If you used a custom port (example: 3010)
 curl -fsS http://127.0.0.1:3010/health
@@ -214,6 +222,89 @@ Expected response:
 
 ```json
 { "status": "ok" }
+```
+
+## Manual Docker Commands (Without Script)
+
+Use this if you prefer plain Docker commands.
+
+### 1) Build images
+
+From repository root:
+
+```bash
+pnpm run build
+docker build --rm -f Dockerfile.base -t playwright/base .
+docker build --progress=plain --rm -f Dockerfile -t playwright/server:2.0.0 .
+```
+
+Or pull instead of building:
+
+```bash
+docker pull playwright/server:2.0.0
+```
+
+### 2) Run container (recommended defaults)
+
+```bash
+docker run -d \
+  --name playwright-server \
+  -p 3010:3000 \
+  --restart unless-stopped \
+  --security-opt seccomp=unconfined \
+  playwright/server:2.0.0
+```
+
+- Default host port: `3010`
+- Default container name: `playwright-server`
+- Change both if needed:
+
+```bash
+docker run -d \
+  --name <your_container_name> \
+  -p <your_host_port>:3000 \
+  --restart unless-stopped \
+  --security-opt seccomp=unconfined \
+  playwright/server:2.0.0
+```
+
+### 3) Verify health
+
+```bash
+curl -fsS http://127.0.0.1:3010/health
+```
+
+Expected:
+
+```json
+{ "status": "ok" }
+```
+
+### 4) Verify browser endpoints (chromium, webkit, firefox)
+
+```ts
+import * as playwright from 'playwright-core';
+
+const browserTypes = ['chromium', 'webkit', 'firefox'] as const;
+
+await Promise.all(
+  browserTypes.map(async (browserType) => {
+    const browser = await playwright[browserType].connect({
+      wsEndpoint: `ws://127.0.0.1:3010/${browserType}`,
+    });
+
+    const page = await browser.newPage();
+    await page.goto('https://example.com');
+    console.log(browserType, await page.title());
+    await browser.close();
+  }),
+);
+```
+
+### 5) Stop and remove container
+
+```bash
+docker rm -f playwright-server
 ```
 
 ## Debugging

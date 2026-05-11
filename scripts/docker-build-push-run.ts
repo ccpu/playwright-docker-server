@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/* eslint-disable no-continue */
 /* eslint-disable no-await-in-loop */
 
 import type { Buffer } from 'node:buffer';
@@ -10,7 +11,7 @@ import process from 'node:process';
 import readline from 'node:readline/promises';
 import { setTimeout as delay } from 'node:timers/promises';
 import { parseArgs } from 'node:util';
-import { chromium } from 'playwright';
+import { chromium, firefox, webkit } from 'playwright';
 
 export type RunTarget = 'dockerdesktop' | 'local';
 
@@ -25,6 +26,7 @@ export interface ParsedArgs {
   containerName?: string;
   port?: number;
   runTarget?: string;
+  cleanup?: boolean;
 }
 
 export interface ResolvedOptions {
@@ -36,6 +38,7 @@ export interface ResolvedOptions {
   runTarget: RunTarget;
   containerName: string;
   port: number;
+  cleanup: boolean;
 }
 
 export interface RunCommandOptions {
@@ -49,13 +52,18 @@ export interface RunCommandResult {
   stderr: string;
 }
 
+export type BrowserName = 'chromium' | 'webkit' | 'firefox';
+
 const REPO_ROOT = path.resolve(process.cwd());
 
 const DEFAULT_IMAGE = 'playwright/server';
 const DEFAULT_BASE_IMAGE = 'playwright/base';
-const DEFAULT_CONTAINER_NAME = 'playwright-docker-server';
-const DEFAULT_PORT = 3000;
+const DEFAULT_CONTAINER_NAME = 'playwright-server';
+const DEFAULT_PORT = 3010;
 const DEFAULT_RUN_TARGET: RunTarget = 'dockerdesktop';
+const DEFAULT_RESTART_POLICY = 'unless-stopped';
+const DEFAULT_CLEANUP = true;
+const FIREFOX_DOCKER_SECURITY_OPT = 'seccomp=unconfined';
 const HEALTHCHECK_TIMEOUT_MS = 90_000;
 const BROWSER_CHECK_TIMEOUT_MS = 120_000;
 const HTTP_ATTEMPT_TIMEOUT_MS = 3_000;
@@ -64,6 +72,7 @@ const WS_RETRY_DELAY_MS = 3_000;
 const LOCAL_PROCESS_START_DELAY_MS = 2_000;
 const LOCAL_PROCESS_STOP_DELAY_MS = 1_000;
 const ARGV_SKIP_COUNT = 2;
+const BROWSER_NAMES: BrowserName[] = ['chromium', 'webkit', 'firefox'];
 
 export function printHelp(): void {
   console.log(`Usage:
@@ -79,6 +88,8 @@ Options:
   --container-name <name>    Container name to run (default: ${DEFAULT_CONTAINER_NAME})
   --port <port>              Host port to map to container 3000 (default: ${DEFAULT_PORT})
   --run-target <target>      dockerdesktop | local (default: ${DEFAULT_RUN_TARGET})
+  --cleanup                  Remove stale images related to this project only (default: yes)
+  --no-cleanup               Skip Docker image cleanup
   --non-interactive          Disable prompts and use defaults
   --help                     Show this help
 
@@ -102,6 +113,8 @@ export function parseCliArgs(argv: string[]): ParsedArgs {
       registry: { type: 'string' },
       push: { type: 'boolean' },
       'no-push': { type: 'boolean' },
+      cleanup: { type: 'boolean' },
+      'no-cleanup': { type: 'boolean' },
       'container-name': { type: 'string' },
       port: { type: 'string' },
       'run-target': { type: 'string' },
@@ -115,6 +128,13 @@ export function parseCliArgs(argv: string[]): ParsedArgs {
     throw new Error('Use either --push or --no-push, not both.');
   }
 
+  const cleanupRequested = parsed.values.cleanup === true;
+  const noCleanupRequested = parsed.values['no-cleanup'] === true;
+
+  if (cleanupRequested && noCleanupRequested) {
+    throw new Error('Use either --cleanup or --no-cleanup, not both.');
+  }
+
   const portRaw = parsed.values.port;
   const parsedPort =
     portRaw === undefined ? undefined : Number.parseInt(portRaw, 10);
@@ -126,6 +146,13 @@ export function parseCliArgs(argv: string[]): ParsedArgs {
     push = false;
   }
 
+  let cleanup: boolean | undefined;
+  if (cleanupRequested) {
+    cleanup = true;
+  } else if (noCleanupRequested) {
+    cleanup = false;
+  }
+
   return {
     help: parsed.values.help === true,
     nonInteractive: parsed.values['non-interactive'] === true,
@@ -134,6 +161,7 @@ export function parseCliArgs(argv: string[]): ParsedArgs {
     tag: parsed.values.tag,
     registry: parsed.values.registry,
     push,
+    cleanup,
     containerName: parsed.values['container-name'],
     port: parsedPort,
     runTarget: parsed.values['run-target'],
@@ -169,6 +197,31 @@ export function composeImageRef({
 
 export function commandToString(command: string, args: string[]): string {
   return `${command} ${args.join(' ')}`;
+}
+
+export function imageRefToRepository(imageRef: string): string {
+  const lastSlashIndex = imageRef.lastIndexOf('/');
+  const lastColonIndex = imageRef.lastIndexOf(':');
+
+  if (lastColonIndex > lastSlashIndex) {
+    return imageRef.slice(0, lastColonIndex);
+  }
+
+  return imageRef;
+}
+
+export function selectRelatedImageRefs(
+  imageRefs: string[],
+  repositories: Set<string>,
+  keepImageRefs: Set<string>,
+): string[] {
+  return imageRefs.filter((imageRef) => {
+    if (imageRef === '<none>:<none>' || keepImageRefs.has(imageRef)) {
+      return false;
+    }
+
+    return repositories.has(imageRefToRepository(imageRef));
+  });
 }
 
 export async function runCommand(
@@ -283,6 +336,7 @@ export async function resolveOptions(
     tag: cliArgs.tag ?? packageJson.version ?? 'latest',
     registry: normalizeRegistry(cliArgs.registry),
     push: cliArgs.push ?? false,
+    cleanup: cliArgs.cleanup ?? DEFAULT_CLEANUP,
     runTarget: cliArgs.runTarget,
     containerName: cliArgs.containerName ?? DEFAULT_CONTAINER_NAME,
     port: resolvedPort,
@@ -365,6 +419,7 @@ export async function waitForHttp(url: string): Promise<number> {
 }
 
 export async function waitForPlaywrightEndpoint(
+  browserName: BrowserName,
   wsEndpoint: string,
 ): Promise<void> {
   const started = Date.now();
@@ -374,7 +429,14 @@ export async function waitForPlaywrightEndpoint(
     let browser: Browser | undefined;
 
     try {
-      browser = await chromium.connect({ wsEndpoint, timeout: 15_000 });
+      if (browserName === 'chromium') {
+        browser = await chromium.connect({ wsEndpoint, timeout: 15_000 });
+      } else if (browserName === 'webkit') {
+        browser = await webkit.connect({ wsEndpoint, timeout: 15_000 });
+      } else {
+        browser = await firefox.connect({ wsEndpoint, timeout: 15_000 });
+      }
+
       const page = await browser.newPage();
       await page.goto('data:text/html,<html><body>ok</body></html>');
       const body = await page.textContent('body');
@@ -399,19 +461,148 @@ export async function waitForPlaywrightEndpoint(
   }
 
   throw new Error(
-    `Playwright WS verification failed for ${wsEndpoint}: ${String(lastError)}`,
+    `Playwright WS verification failed for ${browserName} (${wsEndpoint}): ${String(lastError)}`,
   );
 }
 
 export async function verifyServer(port: number): Promise<void> {
   const httpUrl = `http://127.0.0.1:${port}/`;
-  const wsEndpoint = `ws://127.0.0.1:${port}/chromium`;
 
   const status = await waitForHttp(httpUrl);
   console.log(`HTTP check passed (${httpUrl}) with status ${status}.`);
 
-  await waitForPlaywrightEndpoint(wsEndpoint);
-  console.log(`Playwright WS check passed (${wsEndpoint}).`);
+  for (const browserName of BROWSER_NAMES) {
+    const wsEndpoint = `ws://127.0.0.1:${port}/${browserName}`;
+    await waitForPlaywrightEndpoint(browserName, wsEndpoint);
+    console.log(`Playwright WS check passed (${wsEndpoint}).`);
+  }
+}
+
+export async function cleanupRelatedImages(options: {
+  baseImage: string;
+  localImageRef: string;
+  pushImageRef: string;
+}): Promise<void> {
+  const relatedRepositories = new Set<string>([
+    imageRefToRepository(options.localImageRef),
+    imageRefToRepository(options.pushImageRef),
+    options.baseImage,
+  ]);
+
+  const keepImageRefs = new Set<string>([
+    options.localImageRef,
+    options.pushImageRef,
+  ]);
+
+  const listResult = await runCommand(
+    'docker',
+    ['image', 'ls', '--format', '{{.Repository}}:{{.Tag}}'],
+    { captureOutput: true },
+  );
+
+  const allImageRefs = listResult.stdout
+    .split('\n')
+    .map((line) => line.trim())
+    .filter((line) => line !== '');
+
+  const relatedImageRefsToRemove = selectRelatedImageRefs(
+    allImageRefs,
+    relatedRepositories,
+    keepImageRefs,
+  );
+
+  if (relatedImageRefsToRemove.length === 0) {
+    console.log('No stale related images found to remove.');
+    return;
+  }
+
+  for (const imageRef of relatedImageRefsToRemove) {
+    const removeArgs =
+      imageRef === `${options.baseImage}:latest`
+        ? ['image', 'rm', '-f', imageRef]
+        : ['image', 'rm', imageRef];
+
+    const result = await runCommand('docker', removeArgs, {
+      allowFailure: true,
+      captureOutput: true,
+    });
+
+    if (result.exitCode === 0) {
+      console.log(`Removed image: ${imageRef}`);
+      continue;
+    }
+
+    const errorOutput = result.stderr.trim();
+    console.warn(
+      `Skipped image (still in use or protected): ${imageRef}${errorOutput === '' ? '' : ` - ${errorOutput}`}`,
+    );
+  }
+}
+
+export async function removeImageIfPresent(imageRef: string): Promise<void> {
+  const result = await runCommand('docker', ['image', 'rm', imageRef], {
+    allowFailure: true,
+    captureOutput: true,
+  });
+
+  if (result.exitCode === 0) {
+    console.log(`Removed old image before rebuild: ${imageRef}`);
+    return;
+  }
+
+  const errorOutput = result.stderr.trim();
+  if (errorOutput !== '') {
+    console.log(
+      `Could not remove image before rebuild: ${imageRef} (${errorOutput})`,
+    );
+  }
+}
+
+export async function removeContainerIfPresent(
+  containerName: string,
+  reason: string,
+): Promise<void> {
+  const result = await runCommand('docker', ['rm', '-f', containerName], {
+    allowFailure: true,
+    captureOutput: true,
+  });
+
+  if (result.exitCode === 0) {
+    console.log(`Removed old container (${reason}): ${containerName}`);
+    return;
+  }
+
+  const errorOutput = result.stderr.trim();
+  if (
+    errorOutput !== '' &&
+    !errorOutput.toLowerCase().includes('no such container')
+  ) {
+    console.log(
+      `Could not remove container (${reason}): ${containerName} (${errorOutput})`,
+    );
+  }
+}
+
+export async function preBuildCleanup(options: {
+  runTarget: RunTarget;
+  containerName: string;
+  localImageRef: string;
+  pushImageRef: string;
+  baseImage: string;
+}): Promise<void> {
+  if (options.runTarget === 'dockerdesktop') {
+    await removeContainerIfPresent(options.containerName, 'pre-build cleanup');
+  }
+
+  const imageRefsToRemove = new Set<string>([
+    options.localImageRef,
+    options.pushImageRef,
+    `${options.baseImage}:latest`,
+  ]);
+
+  for (const imageRef of imageRefsToRemove) {
+    await removeImageIfPresent(imageRef);
+  }
 }
 
 export async function main(): Promise<void> {
@@ -443,14 +634,26 @@ export async function main(): Promise<void> {
   console.log(`- push enabled: ${options.push ? 'yes' : 'no'}`);
   console.log(`- container name: ${options.containerName}`);
   console.log(`- port mapping: ${options.port}:3000`);
+  console.log(`- cleanup related images: ${options.cleanup ? 'yes' : 'no'}`);
 
-  console.log('\n[1/7] Validating Docker availability...');
+  console.log('\n[1/9] Validating Docker availability...');
   await runCommand('docker', ['info']);
 
-  console.log('\n[2/7] Building project (pnpm build)...');
+  console.log(
+    '\n[2/9] Removing old runtime and image references before rebuild...',
+  );
+  await preBuildCleanup({
+    runTarget: options.runTarget,
+    containerName: options.containerName,
+    localImageRef,
+    pushImageRef,
+    baseImage: options.baseImage,
+  });
+
+  console.log('\n[3/9] Building project (pnpm build)...');
   await runCommand('pnpm', ['build']);
 
-  console.log('\n[3/7] Building base Docker image...');
+  console.log('\n[4/9] Building base Docker image...');
   await runCommand('docker', [
     'build',
     '--rm',
@@ -461,7 +664,7 @@ export async function main(): Promise<void> {
     '.',
   ]);
 
-  console.log('\n[4/7] Building server Docker image...');
+  console.log('\n[5/9] Building server Docker image...');
   await runCommand('docker', [
     'build',
     '--progress=plain',
@@ -473,7 +676,7 @@ export async function main(): Promise<void> {
     '.',
   ]);
 
-  console.log('\n[5/7] Tagging/pushing image (if enabled)...');
+  console.log('\n[6/9] Tagging/pushing image (if enabled)...');
   if (options.push) {
     if (pushImageRef !== localImageRef) {
       await runCommand('docker', ['tag', localImageRef, pushImageRef]);
@@ -485,13 +688,11 @@ export async function main(): Promise<void> {
     console.log('Push skipped.');
   }
 
-  console.log('\n[6/7] Starting runtime target...');
+  console.log('\n[7/9] Starting runtime target...');
   let localProcess: ReturnType<typeof spawn> | undefined;
 
   if (options.runTarget === 'dockerdesktop') {
-    await runCommand('docker', ['rm', '-f', options.containerName], {
-      allowFailure: true,
-    });
+    await removeContainerIfPresent(options.containerName, 'before docker run');
 
     const result = await runCommand(
       'docker',
@@ -500,6 +701,10 @@ export async function main(): Promise<void> {
         '-d',
         '--name',
         options.containerName,
+        '--restart',
+        DEFAULT_RESTART_POLICY,
+        '--security-opt',
+        FIREFOX_DOCKER_SECURITY_OPT,
         '-p',
         `${options.port}:3000`,
         localImageRef,
@@ -522,7 +727,7 @@ export async function main(): Promise<void> {
     );
   }
 
-  console.log('\n[7/7] Verifying HTTP and Playwright connectivity...');
+  console.log('\n[8/9] Verifying HTTP and Playwright connectivity...');
   try {
     await verifyServer(options.port);
   } finally {
@@ -533,6 +738,18 @@ export async function main(): Promise<void> {
         localProcess.kill('SIGKILL');
       }
     }
+  }
+
+  console.log('\n[9/9] Cleaning up related stale Docker images...');
+  if (options.cleanup) {
+    await cleanupRelatedImages({
+      baseImage: options.baseImage,
+      localImageRef,
+      pushImageRef,
+    });
+    console.log('Related image cleanup completed.');
+  } else {
+    console.log('Cleanup skipped.');
   }
 
   console.log(
